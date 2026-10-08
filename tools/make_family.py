@@ -300,7 +300,8 @@ def cmd_panel_can(ns) -> int:
                              spaces=ns.spaces, voltage=ns.voltage, mcb=ns.mcb,
                              panel_name=ns.name, width_in=ns.width, height_in=ns.height,
                              depth_in=ns.depth, mounting_height_in=ns.mounting_height,
-                             surface=ns.cover == "surface", shared_params=_shared_arg(ns))
+                             surface=ns.cover == "surface", box_thickness_in=ns.box_thickness,
+                             flush_lap_in=ns.flush_lap, shared_params=_shared_arg(ns))
     return 0 if _emit(prod, ns)["ok"] else 1
 
 
@@ -673,7 +674,7 @@ def main(argv=None) -> int:
     p.add_argument("--no-validate", action="store_true")
     p.set_defaults(func=cmd_fan_powered, types=None, type_catalog=False)
 
-    p = sub.add_parser("panel-can", help="generate a panelboard as its back box and cover, "
+    p = sub.add_parser("panel-can", help="generate a panelboard as its back box and trim, "
                                          "with switchable clearance zones (#1047)")
     p.add_argument("--vendor", default="eaton")
     p.add_argument("--line", default="pow-r-line")
@@ -688,7 +689,12 @@ def main(argv=None) -> int:
     p.add_argument("--depth", type=float, default=None, help="box depth (in); catalog if omitted")
     p.add_argument("--mounting-height", type=float, default=None,
                    help="box bottom above the floor (in); the box top at 78 in if omitted")
-    p.add_argument("--cover", default="surface", choices=["surface", "flush"])
+    p.add_argument("--cover", default="surface", choices=["surface", "flush"],
+                   help="the trim switch: surface (the box's size) or flush (lapping the opening)")
+    p.add_argument("--box-thickness", type=float, default=None,
+                   help="back box wall / trim thickness (in); 1/16 nominal if omitted")
+    p.add_argument("--flush-lap", type=float, default=None,
+                   help="how far a flush trim laps the opening per side (in); 3/4 nominal")
     p.add_argument("--shared-params", default=None, metavar="FILE")
     _profile_flags(p)
     p.add_argument("-o", "--output", default=None)

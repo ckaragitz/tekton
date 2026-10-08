@@ -1,15 +1,16 @@
-"""#1047 (steer #1046): a panelboard as its BACK BOX and COVER.
+"""#1047 (steer #1046): a panelboard as its BACK BOX and TRIM.
 
-* five plates make an open-front box of ``Box Thickness`` walls; the cover sits on
-  its front, the box's size when ``Surface Cover`` is on and lapping the opening
-  1/2 in per side when it is off, shown by ``Show Cover`` (bound to its visibility);
-* Width / Height / Depth / Mounting Height (per instance) drive the box; the cover,
-  the working space and the dedicated space ride it; the clearance size parameters
-  label the zones' own dimensions;
+* five plates make an open-front box; the trim sits on its front, the box's size when
+  ``Surface Trim`` is on and lapping the opening on every side when it is off, shown by
+  ``Show Trim`` (bound to its visibility);
+* Width / Height / Depth / Mounting Height (per instance) drive the box; the trim, the
+  working space and the dedicated space ride it; the clearance size parameters label
+  the zones' own dimensions, the working space's width as a chain that stays positive
+  at any shift;
 * one power connector whose voltage, poles, power factor, load and load class are
-  ASSOCIATED to family parameters (poles as Revit's number-of-poles storage, the
-  load class as a load-classification parameter), and two conduit connectors;
-* VALID, 0 errors, on 2026, 2025 and 2024.
+  ASSOCIATED to family parameters, and two conduit connectors;
+* VALID, 0 errors, on 2026, 2025 and 2024 -- and the values / formulas READ BACK from
+  the written file, not only the in-memory rows.
 
 "Behaves in Revit" (the switches, the resizing) is a desktop claim (hard rule 4);
 these pin what the file carries.
@@ -19,6 +20,7 @@ from __future__ import annotations
 import os
 import subprocess
 import sys
+from contextlib import ExitStack
 
 import pytest
 
@@ -29,6 +31,7 @@ from rvt.famgen import equipment_clearance as EC  # noqa: E402
 from rvt.famgen import formula as FM  # noqa: E402
 from rvt.famgen import panel_can as PC  # noqa: E402
 from rvt.famgen import param_binding as PB  # noqa: E402
+from rvt.famgen import skeleton as SK  # noqa: E402
 from conftest import context_constants  # noqa: E402
 
 pytestmark = pytest.mark.usefixtures("no_release_leak")   # rows build inside release_build_context
@@ -41,20 +44,61 @@ def release_leak_extra():
 
 IN = 1 / 12.0
 PLATES = ("back", "left side", "right side", "bottom", "top")
+LENGTH = "autodesk.spec.aec:length-1.0.0"
+BOOL = "autodesk.spec:spec.bool-1.0.0"
+
+
+def readback(path):
+    """``{caption: {value, int, str, elem, formula}}`` of the WRITTEN family's own
+    parameters (its self Family's current values), read under the file's own release."""
+    from rvt import global_framing as GF
+    from rvt.families import FamilyIndex
+    with ExitStack() as st:
+        GF.enter_own_release(st, path)
+        fi = FamilyIndex(path)
+        recs = fi.unit_records(0).get(102, {})
+        caps, fam = {}, None
+        for e, r in recs.items():
+            cls = fi.class_name(r.class_id)
+            if cls.startswith("ParamElem"):
+                v = fi.decode(0, e, 102).value
+                caps[int(e)] = ((v.get("m_pParamDef") or {}).get("value") or {}).get("m_caption")
+            elif cls == "Family":
+                v = fi.decode(0, e, 102).value
+                if v.get("m_surrogateId") == -1:
+                    fam = v
+    out = {}
+    for q in fam["m_familyParams"]["value"]["m_params"]:
+        if q["m_paramId"] in caps:
+            out[caps[q["m_paramId"]]] = {"value": q["m_value"], "int": q["m_int"],
+                                         "str": q["m_str"], "elem": q["m_elemId"],
+                                         "formula": q.get("m_oExpression"),
+                                         "id": q["m_paramId"], "instance": q["m_instance"]}
+    return out
 
 
 @pytest.fixture(scope="module")
-def can():
-    return PC.make_panel_can()
+def can(tmp_path_factory):
+    prod = PC.make_panel_can()
+    path = str(tmp_path_factory.mktemp("can") / "can.rfa")
+    rep = prod.write(path)
+    return prod, path, rep
+
+
+@pytest.fixture(scope="module")
+def flush(tmp_path_factory):
+    prod = PC.make_panel_can(surface=False)
+    path = str(tmp_path_factory.mktemp("flush") / "flush.rfa")
+    rep = prod.write(path)
+    return prod, path, rep
 
 
 def _forms(prod):
     return {f.params["role"]: f for f in prod.forms}
 
 
-def _bound(form):
-    ext = form.by_class("ExtrusionElem")[0]
-    return {(d["m_famParamId"], d["m_elemPropId"]) for d in PB.bound(ext)}
+def _bound(element):
+    return {(d["m_famParamId"], d["m_elemPropId"]) for d in PB.bound(element)}
 
 
 def _extents(form):
@@ -66,153 +110,186 @@ def _extents(form):
 
 
 def test_five_plates_make_an_open_front_box(can):
-    f = _forms(can)
-    W, D, H = 20 * IN, 5.75 * IN, (can.facts.get("height_in")) * IN
+    prod = can[0]
+    f = _forms(prod)
+    W, D, H = 20 * IN, 5.75 * IN, prod.facts.get("height_in") * IN
     t = PC.BOX_THICKNESS_IN * IN
-    MH = (PC.MOUNT_TOP_IN - can.facts.get("height_in")) * IN
-    box = [_extents(f[f"back box: {n}"]) for n in PLATES]
-    xs = [a for e in box for a in e[0]]
-    ys = [a for e in box for a in e[1]]
-    zs = [a for e in box for a in e[2]]
-    assert (min(xs), max(xs)) == pytest.approx((-W / 2, W / 2))
-    assert (min(ys), max(ys)) == pytest.approx((0.0, D))          # the back on the wall plane
-    assert (min(zs), max(zs)) == pytest.approx((MH, MH + H))      # the top at 78 in
-    # every plate is one wall thick; nothing closes the front
-    for (x, y, z) in box:
-        assert min(x[1] - x[0], y[1] - y[0], z[1] - z[0]) == pytest.approx(t)
-    assert all(e[1][1] <= D + 1e-9 for e in box)
-
-
-def test_the_cover_switch_and_its_formulas():
-    names = {n: FM.ParamRef(i, s) for i, (n, s) in enumerate((
-        (PC.P_SURFACE, "autodesk.spec:spec.bool-1.0.0"),
-        (PC.P_WIDTH, "autodesk.spec.aec:length-1.0.0"),
-        (PC.P_HEIGHT, "autodesk.spec.aec:length-1.0.0"),
-        (PC.P_MOUNT, "autodesk.spec.aec:length-1.0.0")), start=1)}
-    W, H, MH = 20 * IN, 48 * IN, 30 * IN
-    for surface, (cw, ch, cz) in ((1, (W, H, MH)), (0, (W + IN, H + IN, MH - IN / 2))):
-        vals = {1: surface, 2: W, 3: H, 4: MH}
-        got = [FM.evaluate(FM.parse_formula(PC.cover_formulas()[c], names)[0], vals)
-               for c in (PC.P_COVER_W, PC.P_COVER_H, PC.P_COVER_Z)]
-        assert got == pytest.approx([cw, ch, cz])
-
-
-@pytest.mark.parametrize("surface", [True, False])
-def test_the_cover_is_drawn_at_its_formula_values(surface):
-    prod = PC.make_panel_can(surface=surface)
-    W, H = 20 * IN, prod.facts.get("height_in") * IN
     MH = (PC.MOUNT_TOP_IN - prod.facts.get("height_in")) * IN
-    lap = 0 if surface else PC.FLUSH_LAP_IN * IN
-    x, y, z = _extents(_forms(prod)["cover"])
-    assert (x[1] - x[0], z[0], z[1] - z[0]) == pytest.approx((W + 2 * lap, MH - lap, H + 2 * lap))
-    assert y == pytest.approx((5.75 * IN, 5.75 * IN + PC.BOX_THICKNESS_IN * IN))
-    vals = prod.doc.types[0][1]
-    assert vals[prod.doc.params[PC.P_SURFACE].elem_id] == int(surface)
-    assert vals[prod.doc.params[PC.P_FLUSH].elem_id] == int(not surface)
+    box = [_extents(f[f"back box: {n}"]) for n in PLATES]
+    assert (min(a for e in box for a in e[0]), max(a for e in box for a in e[0])) == \
+        pytest.approx((-W / 2, W / 2))
+    assert (min(a for e in box for a in e[1]), max(a for e in box for a in e[1])) == \
+        pytest.approx((0.0, D))                                   # the back on the wall plane
+    assert (min(a for e in box for a in e[2]), max(a for e in box for a in e[2])) == \
+        pytest.approx((MH, MH + H))                               # the top at 78 in
+    for (x, y, z) in box:                                         # every plate one wall thick
+        assert min(x[1] - x[0], y[1] - y[0], z[1] - z[0]) == pytest.approx(t)
+
+
+def test_the_written_values_are_the_built_ones(can, flush):
+    W, D = 20 * IN, 5.75 * IN
+    lap = PC.FLUSH_LAP_IN * IN
+    for (prod, path, _rep), surface in ((can, True), (flush, False)):
+        H = prod.facts.get("height_in") * IN
+        MH = (PC.MOUNT_TOP_IN - prod.facts.get("height_in")) * IN
+        rb = readback(path)
+        assert [rb[c]["value"] for c in (PC.P_WIDTH, PC.P_HEIGHT, PC.P_DEPTH, PC.P_MOUNT)] == \
+            pytest.approx([W, H, D, MH])
+        assert (rb[PC.P_SURFACE]["int"], rb[PC.P_FLUSH]["int"]) == (int(surface), int(not surface))
+        want = (W, H, MH) if surface else (W + 2 * lap, H + 2 * lap, MH - lap)
+        assert [rb[c]["value"] for c in (PC.P_TRIM_W, PC.P_TRIM_H, PC.P_TRIM_Z)] == \
+            pytest.approx(want)
+        x, _y, z = _extents(_forms(prod)["trim"])                 # ... and the trim drawn so
+        assert (x[1] - x[0], z[0], z[1] - z[0]) == pytest.approx((want[0], want[2], want[1]))
+        assert rb[PC.P_VOLTAGE]["value"] == pytest.approx(SK.volts(208))
+        assert rb[PC.P_POLES]["int"] == 3
+        # the tagging contract carries the catalog facts, as make_panelboard writes them
+        assert rb["PanelName"]["str"] == "PANEL"
+        assert (rb["Phases"]["int"], rb["Wires"]["int"], rb["NumberOfCircuits"]["int"]) == (3, 4, 42)
+        assert rb["MainsRating"]["value"] == pytest.approx(225.0)         # amperes are internal units
+
+
+def test_every_formula_is_written_and_agrees_with_its_inputs(can, flush):
+    for prod, path, _rep in (can, flush):
+        assert not any("NOT written" in n for n in prod.doc.notes)
+        rb = readback(path)
+        table = {n: FM.ParamRef(pe.elem_id, SK._formula_spec(pe))
+                 for n, pe in prod.doc.params.items()}
+        vals = {}
+        for n, pe in prod.doc.params.items():
+            r = rb[n]
+            spec = SK._formula_spec(pe)
+            vals[pe.elem_id] = (r["str"] if FM.is_text(spec) else r["int"]
+                                if spec in (BOOL, SK.SPEC_INTEGER) else r["value"])
+        n_formulas = 0
+        for n, pe in prod.doc.params.items():
+            text = pe.refs.get("formula")
+            if not text:
+                continue
+            n_formulas += 1
+            assert rb[n]["formula"], f"{n}: formula not written"
+            got = FM.evaluate(FM.parse_formula(text, table)[0], vals)
+            assert got == pytest.approx(vals[pe.elem_id]), n
+        assert n_formulas >= 16
+
+
+def test_the_trim_formulas_follow_the_switch():
+    names = {n: FM.ParamRef(i, s) for i, (n, s) in enumerate((
+        (PC.P_SURFACE, BOOL), (PC.P_WIDTH, LENGTH), (PC.P_HEIGHT, LENGTH),
+        (PC.P_MOUNT, LENGTH)), start=1)}
+    W, H, MH = 20 * IN, 48 * IN, 30 * IN
+    for lap_in in (PC.FLUSH_LAP_IN, 0.5):
+        lap = lap_in * IN
+        for surface, want in ((1, (W, H, MH)), (0, (W + 2 * lap, H + 2 * lap, MH - lap))):
+            got = [FM.evaluate(FM.parse_formula(PC.trim_formulas(lap_in)[c], names)[0],
+                               {1: surface, 2: W, 3: H, 4: MH})
+                   for c in (PC.P_TRIM_W, PC.P_TRIM_H, PC.P_TRIM_Z)]
+            assert got == pytest.approx(want)
+
+
+def test_each_shift_is_applied_from_its_own_side_and_clamped():
+    names = {n: FM.ParamRef(i, s) for i, (n, s) in enumerate((
+        (PC.P_CENTERED, BOOL), (PC.P_SHIFT_L, LENGTH), (PC.P_SHIFT_R, LENGTH),
+        (PC.P_WS_W, LENGTH), (PC.P_WIDTH, LENGTH)), start=1)}
+    left = FM.parse_formula(PC.shift_formula(PC.P_SHIFT_L), names)[0]
+    right = FM.parse_formula(PC.shift_formula(PC.P_SHIFT_R), names)[0]
+    W, CLW = 20 * IN, 30 * IN                                     # 5 in of room each side
+    for centred, sl, sr, want_l, want_r in (
+            (1, 3 * IN, 2 * IN, 0.0, 0.0), (0, 3 * IN, 2 * IN, 3 * IN, 2 * IN),
+            (0, 8 * IN, 0.0, 5 * IN, 0.0), (0, -4 * IN, 9 * IN, 0.0, 5 * IN)):
+        vals = {1: centred, 2: sl, 3: sr, 4: CLW, 5: W}
+        assert FM.evaluate(left, vals) == pytest.approx(want_l)
+        assert FM.evaluate(right, vals) == pytest.approx(want_r)
+    # a box at least the minimum wide leaves no room: no shift either way
+    assert FM.evaluate(right, {1: 0, 2: 0.0, 3: 3 * IN, 4: 32 * IN, 5: 32 * IN}) == 0.0
+
+
+def test_the_left_edge_keeps_the_working_space_over_the_box(can):
+    prod = can[0]
+    P = prod.doc.params
+    # each applied shift reads ITS OWN side's shift
+    assert P[PC.P_SHIFT_L_ON].refs["formula"] == PC.shift_formula(PC.P_SHIFT_L)
+    assert P[PC.P_SHIFT_R_ON].refs["formula"] == PC.shift_formula(PC.P_SHIFT_R)
+    names = {n: FM.ParamRef(P[n].elem_id, LENGTH)
+             for n in (PC.P_WS_W, PC.P_SHIFT_L_ON, PC.P_SHIFT_R_ON)}
+    edge = FM.parse_formula(P[PC.P_WS_LEFT].refs["formula"], names)[0]
+    W, CLW = 20 * IN, 30 * IN
+    for l, r in ((0.0, 0.0), (0.0, 5 * IN), (5 * IN, 0.0)):        # applied shifts, clamped
+        got = FM.evaluate(edge, {P[PC.P_WS_W].elem_id: CLW, P[PC.P_SHIFT_L_ON].elem_id: l,
+                                 P[PC.P_SHIFT_R_ON].elem_id: r})
+        assert got >= W / 2 - 1e-9 and CLW - got >= W / 2 - 1e-9   # spans the box, never 0
 
 
 def test_the_switches_are_bound_to_visibility(can):
-    f, P = _forms(can), can.doc.params
-    assert (P[PC.P_SHOW_COVER].elem_id, PB.ELEM_PROP_VISIBLE) in _bound(f["cover"])
-    assert (P[EC.P_FRONT_ON].elem_id, PB.ELEM_PROP_VISIBLE) in _bound(
-        f["clearance: front working space"])
-    assert (P[EC.P_TOP_ON].elem_id, PB.ELEM_PROP_VISIBLE) in _bound(f["clearance: top"])
-    for n in PLATES:                                       # the box itself always shows
-        assert not _bound(f[f"back box: {n}"])
+    prod = can[0]
+    f, P = _forms(prod), prod.doc.params
+    ext = lambda n: f[n].by_class("ExtrusionElem")[0]               # noqa: E731
+    assert (P[PC.P_SHOW_TRIM].elem_id, PB.ELEM_PROP_VISIBLE) in _bound(ext("trim"))
+    assert (P[EC.P_FRONT_ON].elem_id, PB.ELEM_PROP_VISIBLE) in _bound(ext(PC.ZONE_FRONT))
+    assert (P[EC.P_TOP_ON].elem_id, PB.ELEM_PROP_VISIBLE) in _bound(ext(PC.ZONE_TOP))
+    for n in PLATES:                                                # the box always shows
+        assert not _bound(ext(f"back box: {n}"))
 
 
-def test_the_parameters_read_in_sections(can):
-    P = can.doc.params
+def test_the_parameters_read_in_sections_and_bind_per_instance(can):
+    prod, path, _rep = can
+    P, rb = prod.doc.params, readback(path)
     for hdr, _g in PC.HEADERS:
-        assert P[hdr].refs["formula"] == f'"{hdr}"'
-    for cap in (PC.P_WIDTH, PC.P_HEIGHT, PC.P_DEPTH, PC.P_MOUNT, PC.P_SURFACE, PC.P_SHOW_COVER,
-                PC.P_MIN_CLW, PC.P_FRONT_DEPTH, PC.P_TOP_H, PC.P_TO_FLOOR, PC.P_LOAD,
-                PC.P_CENTERED, PC.P_SHIFT_L, PC.P_SHIFT_R, PC.P_CL_OFFSET):
-        assert P[cap].obj["m_instanceParam"] is True, cap
-    assert P[PC.P_THICK].obj["m_instanceParam"] is False
-    assert P[PC.P_CLW].refs["formula"] == (f"if({PC.P_WIDTH} < {PC.P_MIN_CLW}, "
-                                           f"{PC.P_MIN_CLW}, {PC.P_WIDTH})")
-    assert P[PC.P_FRONT_H].refs["formula"] == (f"if({PC.P_TO_FLOOR}, {PC.P_MOUNT} + "
-                                               f"{PC.P_HEIGHT}, {PC.P_HEIGHT})")
-
-
-def test_the_shift_is_checked_so_the_zone_always_covers_the_box():
-    L = "autodesk.spec.aec:length-1.0.0"
-    names = {n: FM.ParamRef(i, s) for i, (n, s) in enumerate((
-        (PC.P_CENTERED, "autodesk.spec:spec.bool-1.0.0"), (PC.P_SHIFT_R, L), (PC.P_CLW, L),
-        (PC.P_WIDTH, L), (PC.P_SHIFT_R_CHK, L), (PC.P_SHIFT_L_CHK, L)), start=1)}
-    prod = PC.make_panel_can()
-    P = prod.doc.params
-    chk = FM.parse_formula(P[PC.P_SHIFT_R_CHK].refs["formula"], names)[0]
-    off = FM.parse_formula(P[PC.P_CL_OFFSET].refs["formula"], names)[0]
-    W, CLW = 20 * IN, 30 * IN                                  # 5 in of room each side
-    for centred, shift, want in ((1, 3 * IN, 0.0), (0, 3 * IN, 3 * IN), (0, 8 * IN, 5 * IN),
-                                 (0, 0.0, 0.0)):
-        assert FM.evaluate(chk, {1: centred, 2: shift, 3: CLW, 4: W}) == pytest.approx(want)
-    assert FM.evaluate(chk, {1: 0, 2: 3 * IN, 3: 30 * IN, 4: 30 * IN}) == pytest.approx(0.0)
-    # the zone's left edge from the centre plane: never below half the box width
-    for r, l in ((0.0, 0.0), (5 * IN, 0.0), (0.0, 5 * IN)):
-        got = FM.evaluate(off, {3: CLW, 5: r, 6: l})
-        assert got == pytest.approx(CLW / 2 - r + l) and got >= W / 2 - 1e-9
-        assert got - CLW <= -W / 2 + 1e-9                    # and the right edge clears the box
-    vals = prod.doc.types[0][1]
-    assert vals[P[PC.P_CL_OFFSET].elem_id] == pytest.approx(CLW / 2)
-    assert vals[P[PC.P_CENTERED].elem_id] == 1
+        assert P[hdr].refs["formula"] == f'"{hdr}"' and rb[hdr]["str"] == hdr
+    for cap in (PC.P_WIDTH, PC.P_HEIGHT, PC.P_DEPTH, PC.P_MOUNT, PC.P_SURFACE, PC.P_SHOW_TRIM,
+                PC.P_MIN_WS_W, PC.P_WS_W, PC.P_WS_DEPTH, PC.P_DED_H, PC.P_FROM_FLOOR, PC.P_WS_H,
+                PC.P_LOAD, PC.P_CENTERED, PC.P_SHIFT_L, PC.P_SHIFT_R, PC.P_WS_LEFT):
+        assert rb[cap]["instance"] is True, cap
+    for cap in (PC.P_THICK, PC.P_VOLTAGE, PC.P_POLES, PC.P_PF):
+        assert rb[cap]["instance"] is False, cap
 
 
 def test_every_drive_is_wired(can):
-    assert {d["caption"] for d in can.drives} >= {PC.P_WIDTH, PC.P_COVER_W, PC.P_DEPTH, PC.P_CLW,
-                                                  PC.P_CL_OFFSET, PC.P_FRONT_DEPTH}
-    assert set(can.heights["captions"]) == {PC.P_MOUNT, PC.P_HEIGHT, PC.P_COVER_Z, PC.P_COVER_H,
-                                            PC.P_TOP_H, PC.P_FRONT_H}
-    assert can.heights["refused"] == []
-    notes = "\n".join(can.doc.notes)
-    assert "not wired" not in notes and "drives nothing" not in notes
-    # the working space's depth: a labelled drive anchored on the box's front plane
-    depth = next(d for d in can.drives if d["caption"] == PC.P_DEPTH)
-    front = depth["planes"][1]
-    dims = [e for e in can.doc.elements if e.class_name == "LinearDimString"
-            and any(s.get("m_paramId") == can.doc.params[PC.P_FRONT_DEPTH].elem_id
-                    for s in e.obj.get("m_ArrSegInfo") or [])]
-    assert len(dims) == 1
-    assert front in {r.get("m_elemId") for r in _refs(dims[0].obj)}
+    prod = can[0]
+    by = {d["caption"]: d for d in prod.drives}
+    assert set(by) == {PC.P_WIDTH, PC.P_TRIM_W, PC.P_DEPTH, PC.P_WS_DEPTH, PC.P_WS_LEFT,
+                       PC.P_WS_W}
+    assert by[PC.P_WIDTH]["attach"]["parts"] == 2                  # the two sides ride the width
+    assert by[PC.P_DEPTH]["attach"]["parts"] == 1                  # the trim rides the front
+    assert set(prod.heights["captions"]) == {PC.P_MOUNT, PC.P_HEIGHT, PC.P_TRIM_Z, PC.P_TRIM_H,
+                                             PC.P_DED_H, PC.P_WS_H}
+    assert prod.heights["refused"] == [] and prod.heights["locked_unlabelled"] == 2
+    assert not any("not wired" in n for n in prod.doc.notes)
 
 
-def _refs(o):
-    out = []
-    if isinstance(o, dict):
-        if "m_elemId" in o:
-            out.append(o)
-        for v in o.values():
-            out += _refs(v)
-    elif isinstance(o, list):
-        for v in o:
-            out += _refs(v)
-    return out
+def test_the_working_space_starts_at_the_trim_face(can):
+    prod = can[0]
+    D, t = 5.75 * IN, PC.BOX_THICKNESS_IN * IN
+    _x, y, _z = _extents(_forms(prod)[PC.ZONE_FRONT])
+    assert y[0] == pytest.approx(D + t)                            # not behind the trim
+    planes = {p.elem_id: p for p in prod.doc.refplanes}
+    from rvt.famgen import drive_law as DL
+    lo = planes[next(d for d in prod.drives if d["caption"] == PC.P_WS_DEPTH)["planes"][0]]
+    assert DL.plane_at(lo, "y") == pytest.approx(D + t)
 
 
 def test_the_power_connector_reads_the_family_parameters(can):
-    P = can.doc.params
-    (con,) = can.doc.connectors
-    want = {(P[PC.P_VOLTAGE].elem_id, PC.ELEM_PROP_VOLTAGE),
-            (P[PC.P_POLES].elem_id, PC.ELEM_PROP_POLES),
-            (P[PC.P_PF].elem_id, PC.ELEM_PROP_POWER_FACTOR),
-            (P[PC.P_LOAD].elem_id, PC.ELEM_PROP_APPARENT_LOAD),
-            (P[PC.P_LOAD_CLASS].elem_id, PC.ELEM_PROP_LOAD_CLASS)}
-    assert {(d["m_famParamId"], d["m_elemPropId"]) for d in PB.bound(con)} == want
+    prod = can[0]
+    P = prod.doc.params
+    (con,) = prod.doc.connectors
+    # the census's property ids, as literals: poles, voltage, apparent load (-1140004,
+    # NOT the -1140005 skeleton.ELEM_PROP_APPARENT_LOAD holds), power factor, load class
+    assert _bound(con) == {(P[PC.P_POLES].elem_id, -1140001), (P[PC.P_VOLTAGE].elem_id, -1140002),
+                           (P[PC.P_LOAD].elem_id, -1140004), (P[PC.P_PF].elem_id, -1140008),
+                           (P[PC.P_LOAD_CLASS].elem_id, -1140014)}
     poles = P[PC.P_POLES].obj["m_pParamDef"]
     assert poles["ptr_class"] == "ParamDefNoOfPoles"
     assert (poles["value"]["m_lowBound"], poles["value"]["m_upBound"]) == (1, 3)
-    assert con.obj["m_pDomain"]["value"]["m_nNumberOfPoles"] == 3
     lc = P[PC.P_LOAD_CLASS]
     assert lc.obj["m_pParamDef"]["ptr_class"] == "ElectricalLoadClassificationParamDef"
-    assert can.doc.types[0][1][lc.elem_id]["m_elemId"] == \
+    assert readback(can[1])[PC.P_LOAD_CLASS]["elem"] == \
         con.obj["m_pDomain"]["value"]["m_idLoadClassification"]
 
 
 def test_two_conduit_connectors_on_the_box_top_and_bottom(can):
-    f = _forms(can)
-    mep = can.doc.mep_connectors
+    prod = can[0]
+    f = _forms(prod)
+    mep = prod.doc.mep_connectors
     assert len(mep) == 2
     hosts = {c.obj["m_oPlaneRef"]["value"]["m_geomRef"]["m_elemId"] for c in mep}
     assert hosts == {f["back box: top"].by_class("ExtrusionElem")[0].elem_id,
@@ -220,34 +297,52 @@ def test_two_conduit_connectors_on_the_box_top_and_bottom(can):
     assert sum(c.obj["m_pDomain"]["value"]["m_bIsPrimaryConnector"] for c in mep) == 1
 
 
+@pytest.mark.parametrize("kw", [{"height_in": 80}, {"mounting_height_in": 0}])
+def test_a_box_on_the_floor_keeps_its_height_chain(kw):
+    prod = PC.make_panel_can(**kw)
+    assert prod.heights["refused"] == [] and PC.P_HEIGHT in prod.heights["captions"]
+    assert PC.P_MOUNT not in prod.heights["captions"]
+    assert any("stands on the floor" in n for n in prod.doc.notes)
+    assert PC.P_FROM_FLOOR not in prod.doc.params                  # it always starts there
+    flush = PC.make_panel_can(surface=False, **kw)
+    assert flush.heights["refused"] == []
+    assert any("laps" in n and "below the floor" in n for n in flush.doc.notes)
+
+
 def test_a_low_mounted_box_keeps_the_code_height_and_says_so():
     prod = PC.make_panel_can(mounting_height_in=24)
-    assert PC.P_TO_FLOOR not in prod.doc.params and PC.P_FRONT_H not in prod.doc.params
+    assert PC.P_FROM_FLOOR not in prod.doc.params and PC.P_WS_H not in prod.doc.params
     assert any("the code minimum, not switchable" in n for n in prod.doc.notes)
     assert prod.heights["refused"] == []
 
 
-def test_a_given_size_is_said_and_a_box_with_no_inside_is_refused():
-    prod = PC.make_panel_can(width_in=26, height_in=60, depth_in=6)
-    assert any(n.startswith("box size GIVEN") for n in prod.notes)
+def test_given_sizes_are_said_and_impossible_ones_refused():
+    prod = PC.make_panel_can(width_in=26, height_in=60, depth_in=6, box_thickness_in=0.125,
+                             flush_lap_in=0.5, surface=False)
+    assert any(n.startswith("GIVEN") and "box thickness 0.125 in" in n for n in prod.notes)
     x, _y, z = _extents(_forms(prod)["back box: back"])
     assert (x[1] - x[0], z[1] - z[0]) == pytest.approx((26 * IN, 60 * IN))
-    with pytest.raises(PC.PanelCanError):
-        PC.make_panel_can(depth_in=0.4)
+    tx, ty, _tz = _extents(_forms(prod)["trim"])
+    assert (tx[1] - tx[0], ty[1] - ty[0]) == pytest.approx((27 * IN, 0.125 * IN))
+    assert prod.doc.params[PC.P_THICK].refs["formula"] == "0.0104166666666667'"
+    for bad in ({"depth_in": 0.2}, {"box_thickness_in": 0}, {"mounting_height_in": -3}):
+        with pytest.raises(PC.PanelCanError):
+            PC.make_panel_can(**bad)
 
 
 @pytest.mark.parametrize("year", [2026, 2025, 2024])
 def test_the_written_family_validates(can, tmp_path, year):
-    out = str(tmp_path / f"can{year}.rfa")
     if year == 2026:
-        rep = can.write(out)
+        rep = can[2]
     else:
         from rvt.frontdoor import release_ctx as RC
         base = os.path.join(ROOT, "plugin", "assets", "genesis", f"G_ABPD_{year}.rvt")
         if not os.path.exists(base):
             pytest.skip(f"the pinned {year} base is not in this checkout")
+        out = str(tmp_path / f"can{year}.rfa")
         with RC.release_build_context(base):
             rep = PC.make_panel_can(surface=False).write(out)
+        assert readback(out)[PC.P_FLUSH]["int"] == 1
     fm = rep["validate"]["family_mode"]
     assert (fm["verdict"], fm["n_errors"]) == ("VALID", 0) and rep["provenance"]["ok"] is True
 
@@ -259,3 +354,4 @@ def test_the_cli_builds_it(tmp_path):
                        capture_output=True, text=True, timeout=600)
     assert r.returncode == 0, r.stdout[-2000:] + r.stderr[-2000:]
     assert out.exists() and "VALID (0 errors" in r.stdout
+    assert readback(str(out))[PC.P_MOUNT]["value"] == pytest.approx(18 * IN)
