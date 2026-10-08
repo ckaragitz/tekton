@@ -126,7 +126,8 @@ def test_the_parameters_read_in_sections(can):
     for hdr, _g in PC.HEADERS:
         assert P[hdr].refs["formula"] == f'"{hdr}"'
     for cap in (PC.P_WIDTH, PC.P_HEIGHT, PC.P_DEPTH, PC.P_MOUNT, PC.P_SURFACE, PC.P_SHOW_COVER,
-                PC.P_MIN_CLW, PC.P_FRONT_DEPTH, PC.P_TOP_H, PC.P_TO_FLOOR, PC.P_LOAD):
+                PC.P_MIN_CLW, PC.P_FRONT_DEPTH, PC.P_TOP_H, PC.P_TO_FLOOR, PC.P_LOAD,
+                PC.P_CENTERED, PC.P_SHIFT_L, PC.P_SHIFT_R, PC.P_CL_OFFSET):
         assert P[cap].obj["m_instanceParam"] is True, cap
     assert P[PC.P_THICK].obj["m_instanceParam"] is False
     assert P[PC.P_CLW].refs["formula"] == (f"if({PC.P_WIDTH} < {PC.P_MIN_CLW}, "
@@ -135,8 +136,33 @@ def test_the_parameters_read_in_sections(can):
                                                f"{PC.P_HEIGHT}, {PC.P_HEIGHT})")
 
 
+def test_the_shift_is_checked_so_the_zone_always_covers_the_box():
+    L = "autodesk.spec.aec:length-1.0.0"
+    names = {n: FM.ParamRef(i, s) for i, (n, s) in enumerate((
+        (PC.P_CENTERED, "autodesk.spec:spec.bool-1.0.0"), (PC.P_SHIFT_R, L), (PC.P_CLW, L),
+        (PC.P_WIDTH, L), (PC.P_SHIFT_R_CHK, L), (PC.P_SHIFT_L_CHK, L)), start=1)}
+    prod = PC.make_panel_can()
+    P = prod.doc.params
+    chk = FM.parse_formula(P[PC.P_SHIFT_R_CHK].refs["formula"], names)[0]
+    off = FM.parse_formula(P[PC.P_CL_OFFSET].refs["formula"], names)[0]
+    W, CLW = 20 * IN, 30 * IN                                  # 5 in of room each side
+    for centred, shift, want in ((1, 3 * IN, 0.0), (0, 3 * IN, 3 * IN), (0, 8 * IN, 5 * IN),
+                                 (0, 0.0, 0.0)):
+        assert FM.evaluate(chk, {1: centred, 2: shift, 3: CLW, 4: W}) == pytest.approx(want)
+    assert FM.evaluate(chk, {1: 0, 2: 3 * IN, 3: 30 * IN, 4: 30 * IN}) == pytest.approx(0.0)
+    # the zone's left edge from the centre plane: never below half the box width
+    for r, l in ((0.0, 0.0), (5 * IN, 0.0), (0.0, 5 * IN)):
+        got = FM.evaluate(off, {3: CLW, 5: r, 6: l})
+        assert got == pytest.approx(CLW / 2 - r + l) and got >= W / 2 - 1e-9
+        assert got - CLW <= -W / 2 + 1e-9                    # and the right edge clears the box
+    vals = prod.doc.types[0][1]
+    assert vals[P[PC.P_CL_OFFSET].elem_id] == pytest.approx(CLW / 2)
+    assert vals[P[PC.P_CENTERED].elem_id] == 1
+
+
 def test_every_drive_is_wired(can):
-    assert {d["caption"] for d in can.drives} >= {PC.P_WIDTH, PC.P_COVER_W, PC.P_DEPTH, PC.P_CLW}
+    assert {d["caption"] for d in can.drives} >= {PC.P_WIDTH, PC.P_COVER_W, PC.P_DEPTH, PC.P_CLW,
+                                                  PC.P_CL_OFFSET, PC.P_FRONT_DEPTH}
     assert set(can.heights["captions"]) == {PC.P_MOUNT, PC.P_HEIGHT, PC.P_COVER_Z, PC.P_COVER_H,
                                             PC.P_TOP_H, PC.P_FRONT_H}
     assert can.heights["refused"] == []

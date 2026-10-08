@@ -86,6 +86,9 @@ P_LOAD, P_LOAD_CLASS, P_MOTOR = "Apparent Load", "Load Classification", "Motor"
 P_MIN_CLW, P_CLW = "Minimum Clearance Width", "Clearance Width"
 P_FRONT_DEPTH, P_TOP_H = "Front Clearance Depth", "Top Clearance Height"
 P_TO_FLOOR, P_FRONT_H = "Front Clearance To Floor", "Front Clearance Height"
+P_CENTERED, P_CL_OFFSET = "Clearance Centered", "Clearance Offset"
+P_SHIFT_L, P_SHIFT_R = "Shift Clearance Left", "Shift Clearance Right"
+P_SHIFT_L_CHK, P_SHIFT_R_CHK = "Shift Left Check", "Shift Right Check"
 #: the working space's minimum width, NEC 110.26(A)(2): the equipment's width or
 #: 30 in, whichever is greater (a code minimum, cited by article -- never NFPA text)
 MIN_CLEARANCE_WIDTH_IN = 30.0
@@ -280,6 +283,7 @@ def make_panel_can(*, vendor: str = "eaton", line: str = "pow-r-line",
         drive_report, height_report = F._wire_equipment_drives(
             doc, named, d_specs, h_specs, what="panel box and cover")
         _wire_front_depth(doc, named, drive_report, D, zone_ctl)
+        _wire_clearance_width(doc, named, drive_report, zone_ctl)
 
     std_report = ST.apply_safe(doc, "panelboard", standards, None, facts=[facts])
     _contract_values(doc, facts, int(spaces))
@@ -319,11 +323,10 @@ def drive_specs(W: float, D: float, H: float, t: float, MH: float,
       their faces at the wall thickness (locked); Cover Offset / Cover Height label
       the cover's faces; the top zone stands on the box top, Top Clearance Height
       tall.
-    * Clearance Width (x, symmetric): the working space.  Its depth (Front
-      Clearance Depth, from the box front) is wired after these, anchored on the
-      Depth drive's front plane (:func:`_wire_front_depth`); its height (Front
-      Clearance Height, down from the box top) when ``zone_ctl`` carries the plane
-      it starts from.
+    * The working space's width and shift (:func:`_wire_clearance_width`) and its
+      depth (:func:`_wire_front_depth`) are wired after these; its height (Front
+      Clearance Height, down from the box top) is a spec here when ``zone_ctl``
+      carries the plane it starts from.
     """
     zone_ctl = zone_ctl or {}
     zones = set(zone_names)
@@ -346,10 +349,6 @@ def drive_specs(W: float, D: float, H: float, t: float, MH: float,
     depth = {"caption": P_DEPTH, "axis": "y", "lo": 0.0, "hi": D, "lo_plane": "origin",
              "parts": d_parts, "attach": {"hi": ["cover"]}}
     plan = [width, cover_w, depth]
-    if front_zone and zone_ctl.get("width_ft"):
-        cw = float(zone_ctl["width_ft"])
-        plan.append({"caption": P_CLW, "axis": "x", "symmetric": True, "lo": -cw / 2.0,
-                     "hi": cw / 2.0, "parts": {front_zone: ("lo", "hi")}})
     both = {"start": "hi"}
     heights: List[Dict[str, Any]] = [
         {"caption": P_MOUNT, "lo": 0.0, "hi": MH, "name_hi": "box bottom",
@@ -428,6 +427,26 @@ def _clearance_controls(doc, W: float, MH: float, H: float, rep_c: Dict[str, Any
                 P_CLW, SK.SPEC_LENGTH, SK.PGROUP_DIMENSIONS, is_instance=True,
                 formula=f"if({P_WIDTH} < {P_MIN_CLW}, {P_MIN_CLW}, {P_WIDTH})", default=cw)
             out["width_ft"] = cw
+            # the SHIFT (110.26(A)(2) lets the working space sit off-centre as long as it
+            # still spans the equipment): a centred switch, a shift each way, and each
+            # shift CHECKED -- clamped to the room the minimum width leaves beside the
+            # box, zero when centred -- so the zone always covers the box
+            doc.add_family_parameter(P_CENTERED, SK.SPEC_YESNO, hdr, is_instance=True,
+                                     default=1)
+            for cap in (P_SHIFT_L, P_SHIFT_R):
+                doc.add_family_parameter(cap, SK.SPEC_LENGTH, hdr, is_instance=True,
+                                         default=0.0)
+            room = f"({P_CLW} - {P_WIDTH}) / 2"
+            for chk, cap in ((P_SHIFT_L_CHK, P_SHIFT_L), (P_SHIFT_R_CHK, P_SHIFT_R)):
+                doc.add_family_parameter(
+                    chk, SK.SPEC_LENGTH, SK.PGROUP_DIMENSIONS, is_instance=True,
+                    formula=f"if({P_CENTERED}, 0', if({cap} < {room}, {cap}, {room}))",
+                    default=0.0)
+            # the zone's LEFT edge, measured from the centre plane: never below half
+            # the box width, so the labelled dimension never reaches zero
+            doc.add_family_parameter(
+                P_CL_OFFSET, SK.SPEC_LENGTH, SK.PGROUP_DIMENSIONS, is_instance=True,
+                formula=f"{P_CLW} / 2 - {P_SHIFT_R_CHK} + {P_SHIFT_L_CHK}", default=cw / 2.0)
         doc.add_family_parameter(P_FRONT_DEPTH, SK.SPEC_LENGTH, hdr, is_instance=True,
                                  default=float(front["depth_ft"]))
         out["depth_ft"] = float(front["depth_ft"])
@@ -471,9 +490,9 @@ def _wire_front_depth(doc, named, drive_report, D: float, zone_ctl: Dict[str, An
             raise ValueError("no unique working-space part")
         planes = {p.elem_id: p for p in doc.refplanes}
         front_plane = planes[depth["planes"][1]]
-        DL.wire_linear_drive(doc, caption=P_FRONT_DEPTH, axis="y", lo=D,
-                             hi=D + float(zone_ctl["depth_ft"]),
-                             targets=[(sketch_of[zone], ("lo", "hi"))], lo_plane=front_plane)
+        drive_report.append(DL.wire_linear_drive(
+            doc, caption=P_FRONT_DEPTH, axis="y", lo=D, hi=D + float(zone_ctl["depth_ft"]),
+            targets=[(sketch_of[zone], ("lo", "hi"))], lo_plane=front_plane))
     except Exception as e:                                   # noqa: BLE001
         doc.notes.append(f"drive for {P_FRONT_DEPTH!r} not wired "
                          f"({type(e).__name__}: {str(e)[:90]})")
@@ -499,3 +518,31 @@ def _contract_values(doc, facts, spaces: int) -> None:
     for cap, spec, val in entries:
         if cap in doc.params:
             doc.set_type_param(name, cap, F._TO_INTERNAL.get(spec, lambda v: v)(val))
+
+
+def _wire_clearance_width(doc, named, drive_report, zone_ctl: Dict[str, Any]) -> None:
+    """The working space's width and shift as a CHAIN from the origin centre plane:
+    ``Clearance Offset`` (centre plane -> the zone's left edge, at least half the box
+    width) then ``Clearance Width`` (left edge -> right edge, anchored on the plane
+    the first drive made).  Every length stays positive whatever the shift, which a
+    symmetric drive about the centre could not do.  A refusal is a note."""
+    from . import drive_law as DL
+    if not zone_ctl.get("width_ft"):
+        return
+    cw = float(zone_ctl["width_ft"])
+    try:
+        sketch_of, dup = F._named_sketches(named)
+        zone = "clearance: front working space"
+        if zone not in sketch_of or zone in dup:
+            raise ValueError("no unique working-space part")
+        off = DL.wire_linear_drive(doc, caption=P_CL_OFFSET, axis="x", lo=-cw / 2.0, hi=0.0,
+                                   targets=[(sketch_of[zone], ("lo",))],
+                                   hi_plane=DL.origin_centre_plane(doc, "x"))
+        planes = {p.elem_id: p for p in doc.refplanes}
+        wid = DL.wire_linear_drive(doc, caption=P_CLW, axis="x", lo=-cw / 2.0, hi=cw / 2.0,
+                                   targets=[(sketch_of[zone], ("hi",))],
+                                   lo_plane=planes[off["planes"][0]])
+        drive_report += [off, wid]
+    except Exception as e:                                   # noqa: BLE001
+        doc.notes.append(f"drive for {P_CLW!r} / {P_CL_OFFSET!r} not wired "
+                         f"({type(e).__name__}: {str(e)[:90]})")

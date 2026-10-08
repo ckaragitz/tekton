@@ -27,6 +27,17 @@ prefab / rough-in library models one: the back box and the cover. Every paramete
     - Authored only when the working space reaches exactly the box top.
     - A box mounted so low that the 110.26(A)(3) height (6 1/2 ft) passes its top keeps the code
       height and says so in a note.
+  - The shift. 110.26(A)(2) lets the working space sit off-centre as long as it spans the
+    equipment:
+    - `Clearance Centered`, `Shift Clearance Left` / `Shift Clearance Right`;
+    - `Shift Left Check` / `Shift Right Check` = `if(Clearance Centered, 0', if(shift < room,
+      shift, room))`, where room = `(Clearance Width - Width) / 2`;
+    - `Clearance Offset` = `Clearance Width / 2 - Shift Right Check + Shift Left Check`.
+    
+    The zone's width is a CHAIN from the origin centre plane: `Clearance Offset` runs from the
+    centre to the zone's left edge (at least half the box width, so never zero), then
+    `Clearance Width` runs from that edge to the right edge. Every labelled length stays
+    positive at any shift, which a symmetric drive about the centre could not do.
 - **Circuiting.** `Voltage`, `Number of Poles`, `Power Factor`, `Apparent Load`,
   `Load Classification` and `Motor`, associated to the power connector on the box top.
   - Poles use the `ParamDefNoOfPoles` storage (1..3).
@@ -35,7 +46,8 @@ prefab / rough-in library models one: the back box and the cover. Every paramete
   - Two round conduit connectors sit on the box top and bottom.
 - **Section headers.** Four text parameters whose formula is their own label.
 - **Drives.**
-  - In plan: Width / Cover Width / Depth / Clearance Width, plus Front Clearance Depth.
+  - In plan: Width / Cover Width / Depth, the Clearance Offset -> Clearance Width chain, and
+    Front Clearance Depth.
   - In height: Mounting Height / Height / Cover Offset / Cover Height / Front Clearance Height /
     Top Clearance Height, plus two locked unlabelled wall-thickness heights.
   - Every drive is all-or-nothing, and a refusal is a note.
@@ -52,19 +64,19 @@ all of:
 - 2026: surface, flush, a box mounted at 24 in, and a given 26 x 60 x 6 in box;
 - 2025 and 2024, inside `release_build_context`.
 
-**Drives.** Five in-plane drives and 8 / 8 height specs are wired, with 0 refusals.
+**Drives.** Six in-plane drives and 8 / 8 height specs are wired, with 0 refusals.
 
 **Anatomy.** Measured with `tools/family_anatomy.py compare` against the owner's reference
 panelboard. These are aggregate counts only; the reference stays in the git-ignored `samples/`.
 
 | measure | reference | make_panelboard | panel_can | panel_can + owner's profile |
 |---|---|---|---|---|
-| shortfalls (measures where ours is short) | -- | 33 | 28 | 21 |
-| parameters | 60 | 26 | 47 | 60 |
-| per instance | 34 | 4 | 26 | 26 |
-| formulas | 27 | 2 | 13 | 18 |
-| Yes/No | 15 | 5 | 10 | 11 |
-| labelled dimensions | 30 | 3 | 11 | 11 |
+| shortfalls (measures where ours is short) | -- | 33 | 28 | 20 |
+| parameters | 60 | 26 | 53 | 66 |
+| per instance | 34 | 4 | 32 | 32 |
+| formulas | 27 | 2 | 16 | 21 |
+| Yes/No | 15 | 5 | 11 | 12 |
+| labelled dimensions | 30 | 3 | 12 | 12 |
 | connectors | 3 | 1 | 3 | 3 |
 | solids / voids | 2 / 2 | 9 / 0 | 8 / 0 | 8 / 0 |
 | placed nested families | 2 | 0 | 0 | 0 |
@@ -73,7 +85,7 @@ The "owner's profile" column is the #866 mechanism (`ProfileRequest`) reading th
 library profile. It is private and never committed; it adds the library's 13 shared parameters at
 their GUIDs.
 
-**Tests.** `tests/test_panel_can_1047.py`: 15 passed.
+**Tests.** `tests/test_panel_can_1047.py`: 16 passed.
 
 ## Findings
 - **A parameter added before any type row keeps no value.** `FamilyDoc._register_param` only
@@ -92,8 +104,7 @@ their GUIDs.
   mounting holes; void extrusions are #1049.
 - **Not yet built:**
   - model text (ID, part number): #1050;
-  - nested zone / tracking families;
-  - left / right shift of the working space.
+  - nested zone / tracking families.
 - **Names.** The owner's library names arrive through their own profile at build time (#1048):
   the shared ones today, and our own parameters renamed once #1048 lands.
 - **Behaviour is unverified.** No switch, resize or connector association has a desktop verdict
