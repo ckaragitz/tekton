@@ -474,14 +474,78 @@ def test_zone_notes_are_kept_without_drives():
 
 
 @pytest.mark.parametrize("kw,said", [({"mounting_height_in": 0.01}, "the box bottom 0.01 in"),
+                                     ({"mounting_height_in": -1e-9}, "the box bottom -1e-09 in"),
                                      ({"mounting_height_in": PC.FLUSH_LAP_IN + 0.0001,
-                                       "surface": False}, "flush trim's bottom on the floor")])
+                                       "surface": False}, "flush trim's bottom on the floor"),
+                                     ({"mounting_height_in": PC.FLUSH_LAP_IN - 0.0001,
+                                       "surface": False}, "flush trim's bottom on the floor"),
+                                     # #1053 round 4: a lap under 1/32 in never LIFTS a box
+                                     # off the floor into a dimension Revit cannot draw
+                                     ({"mounting_height_in": 0, "surface": False,
+                                       "flush_lap_in": 0.02}, "0.02 in flush lap is built as none"),
+                                     ({"mounting_height_in": 0.01, "surface": False,
+                                       "flush_lap_in": 0.02}, "the box bottom 0.01 in"),
+                                     ({"box_thickness_in": 0.01}, "0.01 in wall is built 0.03125")])
 def test_a_length_too_short_for_revit_is_built_on_the_floor(kw, said, tmp_path):
     prod = PC.make_panel_can(**kw)
-    assert any(said in n and "built as on the floor" in n for n in prod.doc.notes)
+    assert any(said in n and "which Revit cannot dimension" in n for n in prod.doc.notes)
     assert prod.heights["refused"] == []
     path = str(tmp_path / "f.rfa")
     prod.write(path)
     by_id = {r["id"]: r["value"] for r in readback(path).values()}
     assert all(held >= PC.FLOOR_SNAP_IN / 12 for _pid, held in _labelled(prod))
     assert all(by_id[pid] == pytest.approx(held) for pid, held in _labelled(prod))
+
+
+@pytest.mark.parametrize("kw,mh", [({"mounting_height_in": 0, "surface": False,
+                                     "flush_lap_in": 0.02}, 0.0),
+                                   ({"mounting_height_in": 0.01, "surface": False,
+                                     "flush_lap_in": 0.02}, 0.0),
+                                   ({"mounting_height_in": PC.FLUSH_LAP_IN - 0.0001,
+                                     "surface": False}, PC.FLUSH_LAP_IN)])
+def test_a_snap_lands_on_the_floor_never_off_it(kw, mh, tmp_path):
+    prod = PC.make_panel_can(**kw)
+    path = str(tmp_path / "f.rfa")
+    prod.write(path)
+    got = readback(path)
+    assert got[PC.P_MOUNT]["value"] == pytest.approx(mh / 12.0)
+    assert got[PC.P_THICK]["value"] >= PC.FLOOR_SNAP_IN / 12 - 1e-12
+    # the zone note says the given height was changed, never "(given)" for a changed one
+    given = float(kw["mounting_height_in"])
+    if mh != given:
+        assert any(f"(given {given:g} in, snapped" in n for n in prod.doc.notes), prod.doc.notes
+
+
+def test_a_wall_too_thin_for_revit_is_built_at_the_shortest_length(tmp_path):
+    prod = PC.make_panel_can(box_thickness_in=0.01, mounting_height_in=24)
+    path = str(tmp_path / "f.rfa")
+    prod.write(path)
+    assert readback(path)[PC.P_THICK]["value"] == pytest.approx(PC.FLOOR_SNAP_IN / 12)
+    assert all(held >= PC.FLOOR_SNAP_IN / 12 - 1e-12 for _pid, held in _labelled(prod))
+
+
+@pytest.mark.parametrize("kw", [{"width_in": float("nan")}, {"width_in": float("inf")},
+                                {"depth_in": float("-inf")}, {"mounting_height_in": float("nan")},
+                                {"flush_lap_in": float("nan"), "surface": False},
+                                {"box_thickness_in": float("inf")}])
+def test_a_size_that_is_not_a_length_is_refused_by_name(kw):
+    with pytest.raises(PC.PanelCanError, match="is not a length"):
+        PC.make_panel_can(**kw)
+
+
+def test_every_caption_the_constructor_authors_is_in_a_shared_row_table(tmp_path):
+    """A shared-parameter row can never reach a caption this constructor authors
+    unless the tables say what it may be: per instance, by formula or as a local-only
+    storage -> :func:`_local_only`; otherwise its spec -> :func:`_authored_specs`.
+    Read from the WRITTEN family (#1053 round 4: dropping a caption from the local
+    table survived every other test)."""
+    prod = PC.make_panel_can(standards=False, mounting_height_in=24)
+    path = str(tmp_path / "f.rfa")
+    prod.write(path)
+    got = readback(path)
+    local, specs = set(PC._local_only()), set(PC._authored_specs())
+    assert len(got) >= 30 and set(got) <= local | specs, sorted(set(got) - local - specs)
+    for cap, row in got.items():
+        if row["instance"] or row["formula"]:
+            assert cap in local, cap
+    assert not local & specs

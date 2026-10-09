@@ -85,7 +85,11 @@ prefab / rough-in library models one: the back box and its trim (front cover).
   - **A flush trim whose bottom lands exactly on the floor:** `Trim Bottom` is said to label
     nothing.
   - **Snapped to the floor:** a box bottom, or a flush trim's bottom, within 1/32 in of the floor
-    is built as on it and said. Revit draws nothing that short.
+    (above or below it) is built as on it and said. Revit draws nothing that short.
+  - **Never snapped off the floor:** a wall thinner than 1/32 in is built 1/32 in thick, and a
+    flush lap under 1/32 in is built as none, each with a note. So a snap only ever lands a box
+    on the floor, never lifts one into a sliver.
+  - A size that is not a finite number is refused by name.
   - Every drive is all-or-nothing, and a refusal is a note.
 - **Type row and standards.** One type row, added before any parameter. The standards step
   (#601) is followed by the catalog facts as the tagging-contract values, as `make_panelboard`
@@ -123,7 +127,7 @@ The "owner's profile" column is the #866 mechanism (`ProfileRequest`) reading th
 library profile. It is private and never committed; it adds the library's 13 shared parameters at
 their GUIDs.
 
-**Tests.** `tests/test_panel_can_1047.py`: 36 passed.
+**Tests.** `tests/test_panel_can_1047.py`: 52 passed.
 - Values and formulas are READ BACK from the written file (`FamilyIndex` under its own release).
   Every formula is evaluated against the written inputs and must equal the written value.
 - Every labelled dimension must hold its parameter's written value, in five variants (12 / 12 /
@@ -137,7 +141,12 @@ their GUIDs.
 - So are the connectors' frames, the header order, and a five-row shared-parameter file through
   the constructor and the CLI. Its rows: a local-only caption, a Number of Poles row, a YESNO
   switch, and a matching Voltage row that is authored shared.
-- Also pinned: the zone notes without drives, and the floor snapping.
+- Also pinned:
+  - the zone notes without drives;
+  - the floor snapping, from above and below the lap, small negatives, and a lap or wall thinner
+    than 1/32 in;
+  - that every caption the constructor authors is in the local-only table or the authored-spec
+    table, read from the written family.
 
 **Mutation check.** 12 single-line mutations each fail the file:
 - the flush complement;
@@ -169,6 +178,14 @@ Round 3 adds 5 more, each also failing the file:
 - either floor snap removed;
 - zone notes only with drives.
 
+Round 4 adds 8 more, each also failing the file:
+- the lap rounding removed (a 0.02 in lap lifted a box on the floor to 0.02 in, VALID);
+- the wall rounding removed;
+- the finite-size check removed;
+- the negative snap removed;
+- a snapped height labelled "(given)";
+- Apparent Load, Box Thickness or Dedicated Space Height dropped from the local-only table.
+
 ## Findings
 - **A parameter added before any type row keeps no value.** `FamilyDoc._register_param` only
   `setdefault`s on existing rows, and the default type the writer adds later carries 0.0 for every
@@ -188,7 +205,8 @@ Round 3 adds 5 more, each also failing the file:
 - **The working space's code height holds only at the height it was built.** It is drawn to the
   110.26(A)(3) height (6 1/2 ft) when built. A box lowered in Revit draws it lower, and only the
   build-time note says so.
-- **A "240/120" supply is misread as 120 V with one pole.** That predates this PR (`factory._voltage_number`) and is #1057.
+- **A "240/120" supply is misread as 120 V with one pole.** That predates this PR (`factory._voltage_number`) and is #1057. A 120/240 V single-phase panel gets one pole here as in `make_panelboard`; whether Revit expects two is #1057's question too.
+- **A shared-parameter file with a repeated name or a malformed GUID still refuses the job.** That predates this PR (the reader, `skeleton.read_shared_parameter_file`) and is #1061. A standard parameter whose row has another datatype is dropped rather than kept local; that is #1058.
 - **Values a user can push past what Revit will dimension:**
   - a flush trim's bottom on a box mounted below the lap;
   - a negative minimum width.

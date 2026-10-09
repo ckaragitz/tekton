@@ -52,6 +52,7 @@ the resizing are claims only a desktop verdict makes (hard rule 4).
 """
 from __future__ import annotations
 
+import math
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 from . import factory as F
@@ -200,27 +201,47 @@ def make_panel_can(*, vendor: str = "eaton", line: str = "pow-r-line",
         if val is not None:
             given.append(key)
         dims[key] = float(val if val is not None else fact)
+    sizes = dict(dims)
+    if mounting_height_in is not None:
+        sizes["mounting_height_in"] = float(mounting_height_in)
+    for key, val in sizes.items():
+        if not math.isfinite(val):
+            raise PanelCanError(f"{key.replace('_in', '').replace('_', ' ')} {val} is not a "
+                                f"length")
+    if not dims["box_thickness_in"] > 0 or dims["flush_lap_in"] < 0:
+        raise PanelCanError(f"a {dims['box_thickness_in']:g} in wall and a "
+                            f"{dims['flush_lap_in']:g} in flush lap cannot be built")
+    # a length shorter than Revit can dimension is never built (#1053 round 4): a wall
+    # is built at the shortest one, a lap that short is no lap
+    snapped = []
+    if dims["box_thickness_in"] < FLOOR_SNAP_IN:
+        snapped.append(f"a {dims['box_thickness_in']:g} in wall is built "
+                       f"{FLOOR_SNAP_IN:g} in thick")
+        dims["box_thickness_in"] = FLOOR_SNAP_IN
+    if 0 < dims["flush_lap_in"] < FLOOR_SNAP_IN:
+        snapped.append(f"a {dims['flush_lap_in']:g} in flush lap is built as none (the "
+                       f"trim the size of the opening)")
+        dims["flush_lap_in"] = 0.0
     W, H, D = _in(dims["width_in"]), _in(dims["height_in"]), _in(dims["depth_in"])
     t, lap_in = _in(dims["box_thickness_in"]), dims["flush_lap_in"]
-    if not t > 0 or lap_in < 0:
-        raise PanelCanError(f"a {dims['box_thickness_in']:g} in wall and a {lap_in:g} in "
-                            f"flush lap cannot be built")
     if min(W, H, D) <= 4 * t:
         raise PanelCanError(f"a {dims['width_in']:g} x {dims['height_in']:g} x "
                             f"{dims['depth_in']:g} in box leaves nothing inside "
                             f"{dims['box_thickness_in']:g} in walls")
-    if mounting_height_in is not None and float(mounting_height_in) < 0:
+    if mounting_height_in is not None and float(mounting_height_in) <= -FLOOR_SNAP_IN:
         raise PanelCanError(f"a box cannot be mounted {mounting_height_in:g} in below "
                             f"the floor")
     mh_in = (float(mounting_height_in) if mounting_height_in is not None
              else max(0.0, MOUNT_TOP_IN - dims["height_in"]))
-    snapped = []
-    if 0 < mh_in < FLOOR_SNAP_IN:
-        snapped.append(f"the box bottom {mh_in:g} in above the floor is ON it")
+    if mh_in != 0 and abs(mh_in) < FLOOR_SNAP_IN:
+        snapped.append(f"the box bottom {mh_in:g} in from the floor is ON it")
         mh_in = 0.0
+    # only ever onto the floor: a lap of 1/32 in or more is never within 1/32 in
+    # of a box already on it, so this never lifts one
     if not surface and 0 < abs(mh_in - lap_in) < FLOOR_SNAP_IN:
         snapped.append(f"a box bottom {mh_in:g} in up puts the flush trim's bottom on the floor")
         mh_in = lap_in
+    mh_given = mounting_height_in is not None and mh_in == float(mounting_height_in)
     MH = _in(mh_in)
     vll = float(facts.get("voltage_ll_v"))
     poles = 3 if int(facts.get("phases")) >= 3 else 1
@@ -232,8 +253,8 @@ def make_panel_can(*, vendor: str = "eaton", line: str = "pow-r-line",
                                  plane_length_ft=max(8.0, (MH + H) * 1.5),
                                  shared_params=shared_params)
     for note in snapped:
-        doc.notes.append(f"{note} (closer than {FLOOR_SNAP_IN:g} in, which Revit cannot "
-                         f"dimension): built as on the floor")
+        doc.notes.append(f"{note} (shorter than {FLOOR_SNAP_IN:g} in, which Revit cannot "
+                         f"dimension)")
     # the ONE type, first: every parameter added below registers its value on it
     # (a parameter added before any type row exists keeps no value at all)
     doc.add_type(F._clean_name(f"{int(mains_a)}A", facts.get("mains_type"), f"{int(spaces)}ckt"),
@@ -320,7 +341,9 @@ def make_panel_can(*, vendor: str = "eaton", line: str = "pow-r-line",
         body_center=(0.0, D / 2.0), base_z_ft=MH, front_dir=+1, front_y_ft=D + t,
         floor_z_ft=0.0, voltage_to_ground=F._panel_volts_to_ground(facts),
         mounting_note=(f"box bottom {mh_in:g} in above the floor "
-                       + ("(given)" if mounting_height_in is not None else
+                       + ("(given)" if mh_given else
+                          f"(given {float(mounting_height_in):g} in, snapped: see the notes)"
+                          if mounting_height_in is not None else
                           f"(NOMINAL: the box top at {MOUNT_TOP_IN:g} in, or the box on the "
                           f"floor when it is that tall)")))
     for fb in rep_c.pop("forms"):
