@@ -1177,19 +1177,58 @@ def shared_datatype_matches(datatype: str, spec_type_id: str) -> bool:
         str(datatype).strip().upper(), ())
 
 
-def read_shared_parameter_file(path: str) -> Dict[str, SharedParamDef]:
+class SharedParamTable(dict):
+    """``{name: SharedParamDef}`` plus ``notes``: the rows of a shared-parameter file
+    that were NOT used, each named with why (#1061)."""
+
+    def __init__(self, *a, notes: Optional[List[str]] = None, **kw):
+        super().__init__(*a, **kw)
+        self.notes: List[str] = list(notes or [])
+
+
+def _one_guid_per_row(table: Dict[str, SharedParamDef], notes: List[str]) -> SharedParamTable:
+    """The first name a GUID appears under keeps it; a later name is not used -- a
+    family never carries one GUID twice (#1061)."""
+    out, owner = SharedParamTable(notes=notes), {}
+    for name, d in table.items():
+        g = str(getattr(d, "guid", "")).lower()
+        if g and g in owner:
+            out.notes.append(f"shared-parameter file row {name!r} NOT used -- its GUID is "
+                             f"already row {owner[g]!r}'s, and one family never carries a GUID "
+                             f"twice")
+            continue
+        owner[g] = name
+        out[name] = d
+    return out
+
+
+def read_shared_parameter_file(path: str, *, strict: bool = False) -> SharedParamTable:
     """Parse a Revit shared-parameter TXT (the documented tab-separated
     grammar: ``#`` comments, ``*KIND<TAB>col...`` header rows naming the
     columns of the ``KIND<TAB>value...`` rows that follow -- META / GROUP /
     PARAM) into ``{name: SharedParamDef}``.  UTF-8 or UTF-16 (Revit writes
-    UTF-16 LE with a BOM; ours is UTF-8).  Duplicate names, a malformed GUID
-    or a PARAM row before its ``*PARAM`` header -> ``ValueError``."""
+    UTF-16 LE with a BOM; ours is UTF-8).
+
+    A file the user hands us is input we do not control, so a row we cannot read
+    costs that row, never the family (#1061, hard rule 1): a PARAM row with no
+    valid GUID, a repeated name (the first row wins), a GUID under a second name
+    (the first name wins) or a row before its ``*KIND`` header is NOT used, and the
+    returned table's ``notes`` name each.  ``strict=True`` raises ``ValueError``
+    on the first instead (tools that audit a file)."""
     with open(path, "rb") as fh:
         raw = fh.read()
     enc = "utf-16" if raw[:2] in (b"\xff\xfe", b"\xfe\xff") else "utf-8-sig"
     headers: Dict[str, List[str]] = {}
     groups: Dict[str, str] = {}
     out: Dict[str, SharedParamDef] = {}
+    notes: List[str] = []
+    where = os.path.basename(str(path))
+
+    def refuse(ln: int, msg: str, note: str) -> None:
+        if strict:
+            raise ValueError(f"{path}:{ln}: {msg}")
+        notes.append(f"shared-parameter file {where} line {ln}: {note}")
+
     for ln, line in enumerate(raw.decode(enc).splitlines(), 1):
         if not line.strip() or line.lstrip().startswith("#"):
             continue
@@ -1199,7 +1238,9 @@ def read_shared_parameter_file(path: str) -> Dict[str, SharedParamDef]:
             continue
         cols = headers.get(kind)
         if cols is None:
-            raise ValueError(f"{path}:{ln}: {kind} row before its *{kind} header")
+            refuse(ln, f"{kind} row before its *{kind} header",
+                   f"a {kind!r} row before its *{kind} header is NOT used")
+            continue
         row = dict(zip(cols, rest))                   # short rows: .get(col, "") below
         if kind == "GROUP":
             groups[row.get("ID", "")] = row.get("NAME", "")
@@ -1208,15 +1249,27 @@ def read_shared_parameter_file(path: str) -> Dict[str, SharedParamDef]:
             try:
                 guid = str(uuid.UUID(row.get("GUID", "")))
             except ValueError:
-                raise ValueError(f"{path}:{ln}: PARAM {name!r} has no valid GUID") from None
+                refuse(ln, f"PARAM {name!r} has no valid GUID",
+                       f"row {name!r} NOT used -- it has no valid GUID")
+                continue
             if name in out:
-                raise ValueError(f"{path}:{ln}: duplicate PARAM name {name!r}")
+                refuse(ln, f"duplicate PARAM name {name!r}",
+                       f"row {name!r} NOT used -- the name repeats an earlier row, which "
+                       f"is the one used")
+                continue
             out[name] = SharedParamDef(
                 guid=guid, name=name, datatype=row.get("DATATYPE", ""),
                 group=groups.get(row.get("GROUP", ""), row.get("GROUP", "")),
                 description=row.get("DESCRIPTION", ""),
                 visible=row.get("VISIBLE", "1").strip() != "0")
-    return out
+    if strict:
+        seen: Dict[str, str] = {}
+        for name, d in out.items():
+            if d.guid in seen:
+                raise ValueError(f"{path}: GUID {d.guid} under two names "
+                                 f"({seen[d.guid]!r}, {name!r})")
+            seen[d.guid] = name
+    return _one_guid_per_row(out, notes)
 
 
 #: ``shared_params=``: a shared-parameter file path, its parsed rows, or a user's
@@ -1266,7 +1319,8 @@ def shared_param_table(shared_params: SharedParamsArg) -> Dict[str, SharedParamD
         return {}
     if isinstance(shared_params, str):
         return read_shared_parameter_file(shared_params)
-    return dict(shared_params)
+    return _one_guid_per_row(dict(shared_params),
+                             list(getattr(shared_params, "notes", None) or []))
 
 
 def family_param_value(param_id: int, value: Any = 0.0, *,
@@ -2713,6 +2767,8 @@ def new_family_document(category, name: str, *, host: str = "none",
                     shared_params=shared_param_table(shared_params),
                     param_profile=shared_params if _is_profile_request(shared_params) else None,
                     part_type=ptype, work_plane_based=bool(work_plane_based))
+    # a shared-parameter file's rows that were not used are said, never a refusal (#1061)
+    doc.notes.extend(getattr(doc.shared_params, "notes", None) or [])
     if host not in ("none", None, ""):
         doc.notes.append(f"host={host!r}: hosted-family scaffolding (host placeholder + "
                          f"host-face geometry ref) is NOT built by the skeleton [UNKNOWN]")
