@@ -201,6 +201,7 @@ def make_panel_can(*, vendor: str = "eaton", line: str = "pow-r-line",
         if val is not None:
             given.append(key)
         dims[key] = float(val if val is not None else fact)
+    asked = dict(dims)                    # the sizes as given, before any snap (#1062)
     sizes = dict(dims)
     if mounting_height_in is not None:
         sizes["mounting_height_in"] = float(mounting_height_in)
@@ -233,6 +234,8 @@ def make_panel_can(*, vendor: str = "eaton", line: str = "pow-r-line",
                             f"the floor")
     mh_in = (float(mounting_height_in) if mounting_height_in is not None
              else max(0.0, MOUNT_TOP_IN - dims["height_in"]))
+    if mh_in == 0:
+        mh_in = 0.0                       # never "-0 in" (#1062)
     if mh_in != 0 and abs(mh_in) < FLOOR_SNAP_IN:
         snapped.append(f"the box bottom {mh_in:g} in from the floor is ON it")
         mh_in = 0.0
@@ -413,7 +416,8 @@ def make_panel_can(*, vendor: str = "eaton", line: str = "pow-r-line",
         "visibility). No switch or resize has a desktop verdict (hard rule 4).")
     if given:
         prod.notes.append("GIVEN, not the catalog's or our nominal: " + ", ".join(
-            f"{k[:-3].replace('_', ' ')} {dims[k]:g} in" for k in given))
+            f"{k[:-3].replace('_', ' ')} {asked[k]:g} in"
+            + (f" (built {dims[k]:g} in)" if dims[k] != asked[k] else "") for k in given))
     return prod
 
 
