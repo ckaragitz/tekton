@@ -114,8 +114,17 @@ _KIND_PATTERNS: List[Tuple[str, str, str]] = [
      r"|(?P<abbr>\brps?\b)"),
     ("transformer", "T",
      r"(?:dry[\s-]*type\s+)?(?:step[\s-]*(?:down|up)\s+)?transformers?|(?P<abbr>\bxfmrs?\b)"),
+    # A bare 'panel' is this route's panelboard ONLY when nothing else claims the
+    # phrase.  'X control panel' is never one (#825): a pump / generator / elevator /
+    # BMS control panel is a DIFFERENT product, and reading its last word as a
+    # panelboard handed the designer an Eaton PRL2X carrying a real manufacturer's
+    # model -- a silent substitution (S-2026-08-11-c), worse than a refusal.  The
+    # #692 taxonomy shield only covers the span the taxonomy matched, so 'pump'
+    # was shielded while the trailing 'control panel' still fell to this clause,
+    # and 'elevator' / 'BMS' are not taxonomy rows at all.  The lookbehind is
+    # fixed-width, which Python's re requires.
     ("panelboard", "PP",
-     r"panel\s*boards?|(?:electrical\s+|branch\s+)?panels?"),
+     r"panel\s*boards?|(?:electrical\s+|branch\s+)?(?<!control\s)(?<!control-)panels?"),
     # WIRING DEVICES (Electrical Fixtures, issue #166): our make_device family,
     # laid out at the ADA/NEC height on the west/east interior faces; the room
     # build loads ONE shared family per (kind, V, VA, height) and places every
@@ -152,6 +161,15 @@ _CONTEXT_PATTERNS: List[Tuple[str, str, str]] = [
      "doors belong to the hosting stream; the room shell this route builds is walls only"),
     ("housekeeping_pad", r"house\s*keeping\s+pads?|equipment\s+pads?",
      "housekeeping pads are recorded in the intent, not modelled (floor gear stands on the slab)"),
+    # #825: so a 'control panel' this route does not build is SAID, not silently
+    # dropped once the panelboard clause stops taking it.  The qualifier ('pump',
+    # 'generator') is reported separately by the taxonomy when it is a row; for a
+    # kind the taxonomy does not carry ('elevator', 'BMS') this line is the whole
+    # report, which is why it names the control panel rather than the qualifier.
+    ("control_panel", r"control[\s-]panels?",
+     "a control panel is equipment this route does not model -- it is NOT a panelboard, "
+     "and is never built as one: name the product (a motor control centre, a lighting "
+     "control panel) or ask for a panelboard explicitly"),
 ]
 
 #: rating / attribute extractors (applied inside an equipment clause)
