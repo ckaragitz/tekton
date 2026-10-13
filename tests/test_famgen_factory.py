@@ -903,11 +903,14 @@ def test_shared_params_flag_makes_the_eleven_contract_params_shared_rest_local()
     assert set(xf) == {"Phases", "Voltage", "Wires", "Mounting"}
     assert all(xf[n] == CONTRACT_GUIDS[n] for n in xf)
     assert not {"PanelName", "BusRating", "NumberOfCircuits"} & set(xf)
-    # a datatype disagreement is refused, never papered over with a second GUID
+    # a datatype disagreement is never papered over with a second GUID -- and never a
+    # refused job either (#1058, hard rule 1): the parameter is local, and said
     clash = dict(rows, Width=SK.SharedParamDef(guid=CONTRACT_GUIDS["PanelName"], name="Width",
                                               datatype="TEXT"))
-    with pytest.raises(ValueError, match="DATATYPE"):
-        F.make_panelboard(shared_params=clash)
+    prod = F.make_panelboard(shared_params=clash)
+    assert prod.doc.params["Width"].class_name == "ParamElemFamily"
+    assert "Width" not in prod.shared_parameters()
+    assert any("row 'Width' NOT used" in n and "DATATYPE 'TEXT'" in n for n in prod.doc.notes)
 
 
 @needs_schema

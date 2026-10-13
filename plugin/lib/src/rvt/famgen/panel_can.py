@@ -602,9 +602,9 @@ def _keep_local(doc) -> None:
     """Set aside the shared-parameter file's rows this constructor cannot author shared:
     a caption it authors per instance, by formula or as a local-only storage
     (:func:`_local_only`), and one whose DATATYPE is not the spec it authors that
-    caption under (:func:`_authored_specs` -- e.g. a YESNO row, which the writer
-    reads no spec for).  The parameter is local, the family built, and a note names
-    each -- never a refused job (hard rule 1).  The table is the document's own copy."""
+    caption under (:func:`_authored_specs` -- e.g. a TEXT row for a number).  The
+    parameter is local, the family built, and a note names each -- never a refused
+    job (hard rule 1).  The table is the document's own copy."""
     table = getattr(doc, "shared_params", None)
     if not table:
         return

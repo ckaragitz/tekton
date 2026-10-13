@@ -441,7 +441,8 @@ def test_a_flush_trim_on_the_floor_says_its_bottom_is_not_driven():
 
 def test_a_shared_parameter_file_never_refuses_the_job(tmp_path):
     rows = (("Width", "LENGTH"), ("Show Clearances", "YESNO"), ("Number of Poles", "NUMBER_OF_POLES"),
-            ("Show Front Clearance", "YESNO"), ("Voltage", "ELECTRICAL_POTENTIAL"))
+            ("Show Front Clearance", "YESNO"), ("Voltage", "ELECTRICAL_POTENTIAL"),
+            ("Power Factor", "TEXT"))
     sp = tmp_path / "sp.txt"
     sp.write_text("# synthetic\n*META\tVERSION\tMINVERSION\nMETA\t2\t1\n*GROUP\tID\tNAME\n"
                   "GROUP\t1\tDims\n*PARAM\tGUID\tNAME\tDATATYPE\tDATACATEGORY\tGROUP\tVISIBLE"
@@ -453,13 +454,15 @@ def test_a_shared_parameter_file_never_refuses_the_job(tmp_path):
     rep = prod.write(str(tmp_path / "sp.rfa"))
     assert rep["validate"]["family_mode"]["n_errors"] == 0
     P = prod.doc.params
-    for local in (PC.P_WIDTH, PC.P_POLES, "Show Front Clearance"):
+    for local in (PC.P_WIDTH, PC.P_POLES, PC.P_PF):
         assert P[local].class_name == "ParamElemFamily", local
     assert P[PC.P_POLES].obj["m_pParamDef"]["ptr_class"] == "ParamDefNoOfPoles"
-    assert P[PC.P_VOLTAGE].class_name == "ParamElemExternal"        # it matches: authored shared
+    for shared in (PC.P_VOLTAGE, "Show Front Clearance"):           # they match: shared
+        assert P[shared].class_name == "ParamElemExternal", shared
+    assert P["Show Front Clearance"].obj["m_pParamDef"]["ptr_class"] == "ParamDefYesNo"  # #1058
     notes = "\n".join(prod.doc.notes)
     assert "kept LOCAL, not shared: Width, Number of Poles, Show Clearances" in notes
-    assert "kept LOCAL, not shared: Show Front Clearance -- the shared-parameter file's " \
+    assert "kept LOCAL, not shared: Power Factor -- the shared-parameter file's " \
            "datatype" in notes
     r = subprocess.run([sys.executable, os.path.join(ROOT, "tools", "make_family.py"), "panel-can",
                         "--shared-params", str(sp), "-o", str(tmp_path / "cli_sp.rfa")],
