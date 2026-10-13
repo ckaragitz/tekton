@@ -48,9 +48,21 @@ def test_each_unusable_row_costs_that_row_only(tmp_path):
     assert "row 'PanelName' NOT used -- the name repeats" in notes
     assert "row 'Phases' NOT used -- it has no valid GUID" in notes
     assert "row 'Panel Alias' NOT used -- its GUID is already row 'PanelName'" in notes
-    for bad in ("repeats", "GUID", "two names"):
-        with pytest.raises(ValueError):
-            SK.read_shared_parameter_file(path, strict=True)
+
+
+
+@pytest.mark.parametrize("body,refusal", [
+    (_row(G1, "PanelName") + _row(G2, "PanelName"), "duplicate PARAM name"),
+    (_row("not-a-guid", "Phases", "INTEGER"), "no valid GUID"),
+    (_row(G1, "PanelName") + _row(G1, "Panel Alias"), "under two names"),
+])
+def test_strict_still_refuses_each_problem(tmp_path, body, refusal):
+    """``strict=True`` (tools that audit a file) keeps the old refusal -- for each
+    problem on its own, with its own reason."""
+    path = _file(tmp_path, body)
+    with pytest.raises(ValueError, match=refusal):
+        SK.read_shared_parameter_file(path, strict=True)
+    assert SK.read_shared_parameter_file(path).notes          # and non-strict says it
 
 
 def test_parsed_rows_with_one_guid_twice_keep_the_first_name():
@@ -71,6 +83,7 @@ def test_a_constructor_delivers_and_says_which_rows(tmp_path):
     guids = [str(pe.refs.get("guid") or (pe.obj.get("m_guid") or "")).lower()
              for pe in prod.doc.params.values() if pe.class_name == "ParamElemExternal"]
     assert guids.count(G1) <= 1                          # never one GUID twice
+    assert prod.shared_parameters().get("PanelName") == G1   # the first row is the one used
 
 
 def test_the_cli_delivers(tmp_path):
