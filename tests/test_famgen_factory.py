@@ -837,7 +837,9 @@ def test_shared_parameter_file_parses_our_tracked_txt():
 
 def test_shared_parameter_file_grammar_edges(tmp_path):
     """UTF-16 (Revit's own encoding) parses; a bad GUID / duplicate name /
-    headerless row is a ValueError, never a silent skip."""
+    headerless row is a ValueError in ``strict`` mode, and otherwise a row NOT used
+    and named in the table's notes -- never a silent skip, never a refused job
+    (#1061)."""
     txt = ("# This is a Revit shared parameter file.\r\n*META\tVERSION\tMINVERSION\r\nMETA\t2\t1\r\n"
            "*GROUP\tID\tNAME\r\nGROUP\t7\tOurs\r\n"
            "*PARAM\tGUID\tNAME\tDATATYPE\tDATACATEGORY\tGROUP\tVISIBLE\r\n"
@@ -850,15 +852,21 @@ def test_shared_parameter_file_grammar_edges(tmp_path):
     bad = tmp_path / "bad.txt"
     bad.write_text(txt.replace("0c2e8d22-6ff6-4049-b265-f93fae7afc64", "not-a-guid"), encoding="utf-8")
     with pytest.raises(ValueError, match="GUID"):
-        SK.read_shared_parameter_file(str(bad))
+        SK.read_shared_parameter_file(str(bad), strict=True)
     dup = tmp_path / "dup.txt"
     dup.write_text(txt + txt.splitlines()[-1] + "\r\n", encoding="utf-8")
     with pytest.raises(ValueError, match="duplicate"):
-        SK.read_shared_parameter_file(str(dup))
+        SK.read_shared_parameter_file(str(dup), strict=True)
     nohdr = tmp_path / "nohdr.txt"
     nohdr.write_text("PARAM\tx\ty\n", encoding="utf-8")
     with pytest.raises(ValueError, match="header"):
-        SK.read_shared_parameter_file(str(nohdr))
+        SK.read_shared_parameter_file(str(nohdr), strict=True)
+    # a family job never refuses over them (#1061): the row is not used, and said
+    for f, said in ((bad, "no valid GUID"), (dup, "repeats an earlier row (the same name"),
+                    (nohdr, "before its *PARAM header")):
+        t = SK.read_shared_parameter_file(str(f))
+        assert any(said in n for n in t.notes), (f, t.notes)
+    assert list(SK.read_shared_parameter_file(str(dup))) == ["NeutralRating"]
 
 
 @needs_schema
@@ -905,12 +913,20 @@ def test_shared_params_flag_makes_the_eleven_contract_params_shared_rest_local()
     assert not {"PanelName", "BusRating", "NumberOfCircuits"} & set(xf)
     # a datatype disagreement is never papered over with a second GUID -- and never a
     # refused job either (#1058, hard rule 1): the parameter is local, and said
-    clash = dict(rows, Width=SK.SharedParamDef(guid=CONTRACT_GUIDS["PanelName"], name="Width",
-                                              datatype="TEXT"))
+    clash = dict(rows, Width=SK.SharedParamDef(guid="0000eeee-1058-4000-8000-000000000001",
+                                              name="Width", datatype="TEXT"))
     prod = F.make_panelboard(shared_params=clash)
     assert prod.doc.params["Width"].class_name == "ParamElemFamily"
     assert "Width" not in prod.shared_parameters()
     assert any("row 'Width' NOT used" in n and "DATATYPE 'TEXT'" in n for n in prod.doc.notes)
+    # a row reusing another row's GUID is never read at all (#1061): one GUID, one name
+    twin = dict(rows, Width=SK.SharedParamDef(guid=CONTRACT_GUIDS["PanelName"], name="Width",
+                                             datatype="LENGTH"))
+    prod = F.make_panelboard(shared_params=twin)
+    assert prod.shared_parameters()["PanelName"] == CONTRACT_GUIDS["PanelName"]
+    assert "Width" not in prod.shared_parameters()
+    assert any("row 'Width' NOT used -- its GUID is already used by row 'PanelName'" in n
+               for n in prod.doc.notes)
 
 
 @needs_schema

@@ -5,7 +5,8 @@ cannot author as the family's parameter is NOT used: the parameter is authored L
 and a note gives the true reason, checked in order -- a per-instance / formula
 parameter (never shared on this route, whatever the row); a DATATYPE known but not
 shared yet (NUMBER_OF_POLES on an integer parameter: the row suits it); a DATATYPE
-this writer does not know (not checked); a DATATYPE that disagrees (fix the row).
+this writer does not know (not checked); a DATATYPE that disagrees (fix the row --
+said only where some DATATYPE this writer shares fits the parameter's spec).
 Never a second GUID, never a refused job (hard rule 1).  A row that matches is still
 authored SHARED at its GUID.
 
@@ -205,6 +206,8 @@ def test_a_per_instance_or_formula_parameter_keeps_its_binding_local():
     ("LENGTH", "SPEC_LENGTH", {"formula": "1'"}, "per instance or by formula"),
     # a known-but-unshared datatype on a parameter it does not suit: fix the row
     ("NUMBER_OF_POLES", "SPEC_LENGTH", {}, "(fix the file row to share it)"),
+    # a Yes/No type parameter with a TEXT row: a YESNO row would share it (#1068 round 5)
+    ("TEXT", "SPEC_YESNO", {}, "(fix the file row to share it)"),
     # a datatype the writer does not know: not checked, never "the row is fine"
     ("LENGHT", "SPEC_LENGTH", {}, "is not one this writer knows"),
     # a spec no shared datatype fits yet: fixing the row would not share it, so the
