@@ -1179,54 +1179,92 @@ def shared_datatype_matches(datatype: str, spec_type_id: str) -> bool:
 
 
 class SharedParamTable(dict):
-    """``{name: SharedParamDef}`` plus ``notes``: the rows of a shared-parameter file
-    that were NOT used, each named with why (#1061)."""
+    """``{name: SharedParamDef}`` -- each name's FIRST usable row -- plus ``notes``
+    (the rows of a shared-parameter file that were not used, or were kept as a
+    name's alternative, each named with why) and ``alternates``: the later usable
+    rows of a name.  Revit's own files may carry one name under several GUIDs;
+    :meth:`fit` lets a parameter take the row whose DATATYPE fits it (#1061)."""
 
     def __init__(self, *a, notes: Optional[List[str]] = None, **kw):
         super().__init__(*a, **kw)
         self.notes: List[str] = list(notes or [])
+        self.alternates: Dict[str, List[SharedParamDef]] = {}
+
+    def fit(self, name: str, spec_type_id: str,
+            notes: Optional[List[str]] = None) -> Optional[SharedParamDef]:
+        """``name``'s row, made the first of its name whose DATATYPE fits
+        ``spec_type_id`` when the first does not and an alternative does (the
+        swap is said in ``notes``, a family's, or the table's own); else the
+        first row as it is."""
+        row = self.get(name)
+        if row is None or shared_datatype_matches(row.datatype, spec_type_id):
+            return row
+        alts = self.alternates.get(name) or []
+        for i, alt in enumerate(alts):
+            if shared_datatype_matches(alt.datatype, spec_type_id):
+                self[name] = alt
+                self.alternates[name] = [row] + alts[:i] + alts[i + 1:]
+                (self.notes if notes is None else notes).append(
+                    f"shared-parameter row {name!r}: the row of DATATYPE {alt.datatype!r} "
+                    f"(GUID {alt.guid}) is the one used -- it fits the parameter, the first "
+                    f"row of the name (DATATYPE {row.datatype!r}) does not")
+                return alt
+        return row
 
 
-def _usable_rows(rows: Sequence[Tuple[str, SharedParamDef]], *, refuse) -> SharedParamTable:
-    """The rows a family may use, in order, each checked against the rows already
-    USED (#1061): one with no name, or no valid GUID, is not used; a name already
-    used is not used again (the earlier row is the one used); a GUID already used
-    under another name is not used (a family never carries one GUID twice).  A
+class _RowCheck:
+    """Each row a family may use, taken in order and checked against the rows
+    already taken (#1061): one with no name, or no valid GUID, is not used; a
+    GUID already taken (under any name) is not used -- a family never carries
+    one GUID twice; a name already taken keeps the earlier row as the one read
+    and this row as that name's alternative (:meth:`SharedParamTable.fit`).  A
     GUID is canonicalised (lower case, hyphenated) so case and braces cannot hide
-    a repeat.  ``refuse(where, msg, note)`` records each row not used -- or raises,
-    for a strict read."""
-    out, owner = SharedParamTable(), {}
-    for where, d in rows:
+    a repeat.  ``refuse(where, msg, note)`` records each -- or raises, for a strict
+    read, which stops at the first in order."""
+
+    def __init__(self, refuse):
+        self.table = SharedParamTable()
+        self.owner: Dict[str, str] = {}
+        self.refuse = refuse
+
+    def take(self, where: Any, d: Any) -> None:
         name = str(getattr(d, "name", "") or "")
         if not name.strip():
-            refuse(where, "PARAM row with no NAME", "a row with no NAME is NOT used")
-            continue
+            self.refuse(where, "PARAM row with no NAME", "a row with no NAME is NOT used")
+            return
         try:
             guid = str(uuid.UUID(str(getattr(d, "guid", "") or "")))
         except ValueError:
-            refuse(where, f"PARAM {name!r} has no valid GUID",
-                   f"row {name!r} NOT used -- it has no valid GUID")
-            continue
-        if name in out:
-            refuse(where, f"duplicate PARAM name {name!r}",
-                   f"row {name!r} NOT used -- the name repeats an earlier row, which is "
-                   f"the one used")
-            continue
-        if guid in owner:
-            refuse(where, f"GUID {guid} under two names ({owner[guid]!r}, {name!r})",
-                   f"row {name!r} NOT used -- its GUID is already row {owner[guid]!r}'s, "
-                   f"and one family never carries a GUID twice")
-            continue
-        owner[guid] = name
-        if guid != getattr(d, "guid", None) or name != getattr(d, "name", None):
-            d = (dataclasses.replace(d, guid=guid, name=name) if dataclasses.is_dataclass(d)
+            self.refuse(where, f"PARAM {name!r} has no valid GUID",
+                        f"row {name!r} NOT used -- it has no valid GUID")
+            return
+        if guid in self.owner and self.owner[guid] == name:
+            self.refuse(where, f"duplicate PARAM name {name!r} (the same GUID again)",
+                        f"row {name!r} NOT used -- it repeats an earlier row (the same name "
+                        f"and GUID)")
+            return
+        if guid in self.owner:
+            self.refuse(where, f"GUID {guid} under two rows ({self.owner[guid]!r}, {name!r})",
+                        f"row {name!r} NOT used -- its GUID is already used by row "
+                        f"{self.owner[guid]!r}, and one family never carries a GUID twice")
+            return
+        if guid != getattr(d, "guid", None) or not dataclasses.is_dataclass(d):
+            d = (dataclasses.replace(d, guid=guid) if dataclasses.is_dataclass(d)
                  else SharedParamDef(guid=guid, name=name,
                                      datatype=getattr(d, "datatype", ""),
                                      group=getattr(d, "group", ""),
                                      description=getattr(d, "description", ""),
                                      visible=getattr(d, "visible", True)))
-        out[name] = d
-    return out
+        if name in self.table:
+            self.refuse(where, f"duplicate PARAM name {name!r}",
+                        f"row {name!r} repeats a name already read: kept as that name's "
+                        f"alternative -- a parameter takes the first row of its name whose "
+                        f"DATATYPE fits it")
+            self.owner[guid] = name
+            self.table.alternates.setdefault(name, []).append(d)
+            return
+        self.owner[guid] = name
+        self.table[name] = d
 
 
 def read_shared_parameter_file(path: str, *, strict: bool = False) -> SharedParamTable:
@@ -1237,20 +1275,18 @@ def read_shared_parameter_file(path: str, *, strict: bool = False) -> SharedPara
     UTF-16 LE with a BOM; ours is UTF-8).
 
     A file the user hands us is input we do not control, so a row we cannot read
-    costs that row, never the family (#1061, hard rule 1).  Each PARAM row is
-    checked in file order against the rows already USED (:func:`_usable_rows`): a
-    row with no name or no valid GUID, a name already used (that earlier row is the
-    one used) or a GUID already used under another name is NOT used -- so a later
-    row of a name stands in for an earlier one that could not be used -- and so is
-    a row before its ``*KIND`` header.  The returned table's ``notes`` name each,
-    with its line.  ``strict=True`` raises ``ValueError`` at the first in the file
-    instead (tools that audit a file)."""
+    costs that row, never the family (#1061, hard rule 1).  Every row is taken in
+    file order (:class:`_RowCheck`): a row with no name or no valid GUID, a GUID
+    already taken, or a row before its ``*KIND`` header is NOT used; a second row
+    of a name is kept as that name's alternative (:meth:`SharedParamTable.fit`).
+    The returned table's ``notes`` name each, with its line, in file order.
+    ``strict=True`` raises ``ValueError`` at the first of them in the file --
+    a repeated name included -- instead (tools that audit a file)."""
     with open(path, "rb") as fh:
         raw = fh.read()
     enc = "utf-16" if raw[:2] in (b"\xff\xfe", b"\xfe\xff") else "utf-8-sig"
     headers: Dict[str, List[str]] = {}
     groups: Dict[str, str] = {}
-    params: List[Tuple[int, SharedParamDef]] = []
     notes: List[str] = []
     where = os.path.basename(str(path))
 
@@ -1259,6 +1295,7 @@ def read_shared_parameter_file(path: str, *, strict: bool = False) -> SharedPara
             raise ValueError(f"{path}:{ln}: {msg}")
         notes.append(f"shared-parameter file {where} line {ln}: {note}")
 
+    check = _RowCheck(refuse)
     for ln, line in enumerate(raw.decode(enc).splitlines(), 1):
         if not line.strip() or line.lstrip().startswith("#"):
             continue
@@ -1275,18 +1312,16 @@ def read_shared_parameter_file(path: str, *, strict: bool = False) -> SharedPara
         if kind == "GROUP":
             groups[row.get("ID", "")] = row.get("NAME", "")
         elif kind == "PARAM":
-            params.append((ln, SharedParamDef(
+            # taken as it is read: every note, and a strict read's refusal, in
+            # file order
+            check.take(ln, SharedParamDef(
                 guid=row.get("GUID", ""), name=row.get("NAME", ""),
                 datatype=row.get("DATATYPE", ""),
                 group=groups.get(row.get("GROUP", ""), row.get("GROUP", "")),
                 description=row.get("DESCRIPTION", ""),
-                visible=row.get("VISIBLE", "1").strip() != "0")))
-    # every row is checked in file order against the rows already used, so a
-    # later row of a name stands in for an earlier one that could not be used,
-    # and a strict read stops at the first problem in the file
-    table = _usable_rows(params, refuse=refuse)
-    table.notes = notes
-    return table
+                visible=row.get("VISIBLE", "1").strip() != "0"))
+    check.table.notes = notes
+    return check.table
 
 
 #: ``shared_params=``: a shared-parameter file path, its parsed rows, or a user's
@@ -1336,18 +1371,27 @@ def shared_param_table(shared_params: SharedParamsArg) -> Dict[str, SharedParamD
         return {}
     if isinstance(shared_params, str):
         return read_shared_parameter_file(shared_params)
+    if isinstance(shared_params, SharedParamTable):    # already checked: the doc's own copy
+        t = SharedParamTable(shared_params, notes=list(shared_params.notes))
+        t.alternates = {k: list(v) for k, v in shared_params.alternates.items()}
+        return t
     notes = list(getattr(shared_params, "notes", None) or [])
 
     def refuse(_where, _msg: str, note: str) -> None:
-        notes.append(f"shared-parameter {note}")
-    rows = []
-    for key, d in dict(shared_params).items():       # the key is the row's name
-        if getattr(d, "name", key) != key and dataclasses.is_dataclass(d):
-            d = dataclasses.replace(d, name=key)
-        rows.append((None, d))
-    table = _usable_rows(rows, refuse=refuse)
-    table.notes = notes
-    return table
+        notes.append(f"shared-parameter rows given: {note}")
+    check = _RowCheck(refuse)
+    for key, d in dict(shared_params).items():       # the KEY names the row
+        if dataclasses.is_dataclass(d):
+            d = d if getattr(d, "name", None) == key else dataclasses.replace(d, name=key)
+        else:
+            d = SharedParamDef(guid=getattr(d, "guid", ""), name=key,
+                               datatype=getattr(d, "datatype", ""),
+                               group=getattr(d, "group", ""),
+                               description=getattr(d, "description", ""),
+                               visible=getattr(d, "visible", True))
+        check.take(None, d)
+    check.table.notes = notes
+    return check.table
 
 
 def family_param_value(param_id: int, value: Any = 0.0, *,
@@ -2051,7 +2095,10 @@ class FamilyDoc:
         value (:mod:`rvt.famgen.formula`, #850); a formula that cannot be stored
         faithfully is left out and SAID in ``notes`` (the family is still built).
         """
-        row = self.shared_params.get(name)
+        # the row of the name whose DATATYPE fits, where its file has several (#1061)
+        fit = getattr(self.shared_params, "fit", None)
+        row = (fit(name, spec_type_id, self.notes) if fit is not None
+               else self.shared_params.get(name))
         if row is not None:
             why = None
             dt = str(row.datatype).strip().upper()

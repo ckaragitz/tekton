@@ -11,25 +11,33 @@ refused the job" (found by #1053's fourth review):
 A user's file is input we do not control (hard rule 1). Each such row is now **not used**, and the
 table's `notes` name it with its file line.
 
-**Every row is checked in file order against the rows already used** (`_usable_rows`). A row is not
-used when:
-- it has no name;
+**Every row is taken in file order, as it is read** (`_RowCheck`), against the rows already taken.
+A row is not used when:
+- it has no name (blank or only spaces);
 - it has no valid GUID;
-- its name is already used (that earlier row is the one used);
-- its GUID is already used under another name. One GUID under two names used to be read as two rows
-  and written shared twice.
+- it repeats an earlier row exactly (the same name and GUID);
+- its GUID is already taken under another name. One GUID under two names used to be read as two
+  rows and written shared twice.
 
-So a later row of a name stands in for an earlier one that could not be used. That was #1072's first
-review: a row whose GUID was taken used to block a later, valid row of the same name. GUIDs are
-canonicalised (case, braces), so neither can hide a repeat. Parsed rows passed in
-(`shared_param_table`) take the same checks: an invalid or braced GUID used to reach the encoder and
-refuse the job.
+Every note, and a strict read's refusal, comes in file order. #1072's second review found strict
+stopping at a header-less row after a repeated name.
+
+**A second row of a name, with its own GUID, is kept as that name's alternative.** Revit's own
+files may carry one name under several GUIDs, and `shared_params_from_rfa` writes them sorted by
+GUID, so "the first row" is arbitrary. `SharedParamTable.fit` makes a parameter take the first row
+of its name whose DATATYPE fits it, said in a note. `add_family_parameter` and panel_can's
+`_keep_local` call it. Before, a name whose first row had another DATATYPE stayed local with a note
+that contradicted itself (#1072's second review).
+
+GUIDs are canonicalised (case, braces). Parsed rows passed in (`shared_param_table`) take the same
+checks and are named by their KEY: an invalid or braced GUID used to reach the encoder and refuse
+the job. A table passed back in is copied with its notes and alternatives.
 
 `SharedParamTable` is a `dict` with `.notes`, and `new_family_document` copies the notes onto the
 family's notes. `strict=True` keeps the old `ValueError` for tools that audit a file.
 
 ## Evidence
-- **`tests/test_shared_file_rows_1061.py`: 11 passed.** Each of the row problems is checked:
+- **`tests/test_shared_file_rows_1061.py`: 15 passed.** Each of the row problems is checked:
   - through the reader (the notes name each one);
   - in `strict=True`, each on its own file, refused with its own reason (repeated name, malformed
     GUID, one GUID under two names);
@@ -47,9 +55,20 @@ family's notes. `strict=True` keeps the old `ValueError` for tools that audit a 
   - parsed rows with a braced upper-case GUID (canonicalised), an invalid GUID and an empty name;
   - a passed-in table's notes, which reach the family's notes;
   - a file row with no name.
+- **Pinned since the second review:**
+  - strict stops at line 8 (a repeated name) before line 9 (no header), and the notes come in file
+    order;
+  - two Voltage rows (TEXT, then ELECTRICAL_POTENTIAL): `make_panelboard` and `make_panel_can`
+    share the second, the note says so, and nothing calls Voltage unused or local;
+  - an alternative's GUID is never reused by another name;
+  - parsed rows are named by their key (a renamed dataclass, an object with no `.name`), and a name
+    of only spaces is not used.
 - **`test_shared_params_from_rfa_866`** reads our own written TXT with `strict=True`, since it is an
   audit.
 - **Mutation.** Each of these single-line mutants fails the files:
+  - (second round) `fit` bypassed in `add_family_parameter` or in panel_can; an alternative's GUID
+    not reserved; a name of spaces kept; rows not named by their key; the rows taken after the read
+    instead of during it;
   - the GUID owner not recorded;
   - the GUID check skipped;
   - no canonical GUID;

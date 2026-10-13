@@ -862,7 +862,7 @@ def test_shared_parameter_file_grammar_edges(tmp_path):
     with pytest.raises(ValueError, match="header"):
         SK.read_shared_parameter_file(str(nohdr), strict=True)
     # a family job never refuses over them (#1061): the row is not used, and said
-    for f, said in ((bad, "no valid GUID"), (dup, "repeats an earlier row"),
+    for f, said in ((bad, "no valid GUID"), (dup, "repeats an earlier row (the same name"),
                     (nohdr, "before its *PARAM header")):
         t = SK.read_shared_parameter_file(str(f))
         assert any(said in n for n in t.notes), (f, t.notes)
@@ -925,7 +925,7 @@ def test_shared_params_flag_makes_the_eleven_contract_params_shared_rest_local()
     prod = F.make_panelboard(shared_params=twin)
     assert prod.shared_parameters()["PanelName"] == CONTRACT_GUIDS["PanelName"]
     assert "Width" not in prod.shared_parameters()
-    assert any("row 'Width' NOT used -- its GUID is already row 'PanelName'" in n
+    assert any("row 'Width' NOT used -- its GUID is already used by row 'PanelName'" in n
                for n in prod.doc.notes)
 
 

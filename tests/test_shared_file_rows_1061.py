@@ -45,16 +45,17 @@ def test_each_unusable_row_costs_that_row_only(tmp_path):
     assert list(t) == ["PanelName", "MainsRating"]
     assert t["PanelName"].guid == G1                     # the FIRST row of the name
     notes = "\n".join(t.notes)
-    assert "row 'PanelName' NOT used -- the name repeats" in notes
+    assert "row 'PanelName' repeats a name already read: kept as that name's alternative" in notes
+    assert [d.guid for d in t.alternates["PanelName"]] == [G2]
     assert "row 'Phases' NOT used -- it has no valid GUID" in notes
-    assert "row 'Panel Alias' NOT used -- its GUID is already row 'PanelName'" in notes
+    assert "row 'Panel Alias' NOT used -- its GUID is already used by row 'PanelName'" in notes
 
 
 
 @pytest.mark.parametrize("body,refusal", [
     (_row(G1, "PanelName") + _row(G2, "PanelName"), "duplicate PARAM name"),
     (_row("not-a-guid", "Phases", "INTEGER"), "no valid GUID"),
-    (_row(G1, "PanelName") + _row(G1, "Panel Alias"), "under two names"),
+    (_row(G1, "PanelName") + _row(G1, "Panel Alias"), "under two rows"),
 ])
 def test_strict_still_refuses_each_problem(tmp_path, body, refusal):
     """``strict=True`` (tools that audit a file) keeps the old refusal -- for each
@@ -82,9 +83,9 @@ def test_a_later_row_of_a_name_stands_in_for_one_that_cannot_be_used(tmp_path):
     t = SK.read_shared_parameter_file(path)
     assert {k: v.guid for k, v in t.items()} == {"PanelName": G1, "Width": G6}
     notes = "\n".join(t.notes)
-    assert "line 8: row 'Width' NOT used -- its GUID is already row 'PanelName'" in notes
+    assert "line 8: row 'Width' NOT used -- its GUID is already used by row 'PanelName'" in notes
     assert "repeats" not in notes and "line 9" not in notes
-    with pytest.raises(ValueError, match=r":8: GUID .* under two names"):
+    with pytest.raises(ValueError, match=r":8: GUID .* under two rows"):
         SK.read_shared_parameter_file(path, strict=True)      # the FIRST problem, by line
     prod = F.make_panelboard(shared_params=path)
     assert prod.shared_parameters().get("Width") == G6
@@ -128,13 +129,14 @@ def test_a_constructor_delivers_and_says_which_rows(tmp_path):
     rep = prod.write(str(tmp_path / "p.rfa"))
     assert rep["validate"]["family_mode"]["n_errors"] == 0
     notes = "\n".join(prod.doc.notes)
-    assert "line 8: row 'PanelName' NOT used" in notes and "row 'Phases' NOT used" in notes
+    assert "line 8: row 'PanelName' repeats a name already read" in notes
+    assert "row 'Phases' NOT used" in notes
     guids = [str(pe.refs.get("guid") or (pe.obj.get("m_guid") or "")).lower()
              for pe in prod.doc.params.values() if pe.class_name == "ParamElemExternal"]
     assert guids.count(G1) == 1                          # never one GUID twice
     assert prod.shared_parameters().get("PanelName") == G1   # the first row is the one used
     assert "Voltage" not in prod.shared_parameters()
-    assert "row 'Voltage' NOT used -- its GUID is already row 'PanelName'" in notes
+    assert "row 'Voltage' NOT used -- its GUID is already used by row 'PanelName'" in notes
 
 
 def test_the_cli_delivers(tmp_path):
@@ -146,3 +148,52 @@ def test_the_cli_delivers(tmp_path):
                        capture_output=True, text=True, timeout=600)
     assert r.returncode == 0 and "VALID (0 errors" in r.stdout, r.stdout[-1200:] + r.stderr[-1200:]
     assert os.path.isfile(out)
+
+
+def test_strict_stops_at_the_first_problem_in_file_order(tmp_path):
+    """A repeated name on line 8, a row with no header on line 9: strict stops at
+    line 8, and the notes come in file order (#1072 review round 2)."""
+    path = _file(tmp_path, _row(G1, "PanelName") + _row(G2, "PanelName") + "junk line\n")
+    with pytest.raises(ValueError, match=r":8: duplicate PARAM name 'PanelName'"):
+        SK.read_shared_parameter_file(path, strict=True)
+    notes = SK.read_shared_parameter_file(path).notes
+    assert [n.split(":")[0].rsplit(" ", 1)[1] for n in notes] == ["8", "9"]
+
+
+def test_a_name_takes_the_row_whose_datatype_fits(tmp_path):
+    """Two rows of one name (legal in Revit's own files): the parameter takes the
+    first whose DATATYPE fits it -- here the second -- and no note says otherwise
+    (#1072 review round 2)."""
+    from rvt.famgen import panel_can as PC
+    path = _file(tmp_path, _row(G1, "Voltage", "TEXT")
+                 + _row(G2, "Voltage", "ELECTRICAL_POTENTIAL"))
+    t = SK.read_shared_parameter_file(path)
+    assert t["Voltage"].guid == G1 and [d.guid for d in t.alternates["Voltage"]] == [G2]
+    for prod in (F.make_panelboard(shared_params=path), PC.make_panel_can(shared_params=path)):
+        assert prod.shared_parameters().get("Voltage") == G2
+        notes = "\n".join(prod.doc.notes)
+        assert "row 'Voltage': the row of DATATYPE 'ELECTRICAL_POTENTIAL'" in notes
+        assert "row 'Voltage' NOT used" not in notes and "kept LOCAL, not shared: Voltage" \
+            not in notes
+
+
+def test_parsed_rows_are_named_by_their_key():
+    from types import SimpleNamespace
+    rows = {"PanelName": SK.SharedParamDef(guid=G1, name="Something Else", datatype="TEXT"),
+            "Voltage": SimpleNamespace(guid=G2, datatype="ELECTRICAL_POTENTIAL"),
+            "   ": SK.SharedParamDef(guid=G3, name="   ", datatype="TEXT")}
+    t = SK.shared_param_table(rows)
+    assert {k: v.guid for k, v in t.items()} == {"PanelName": G1, "Voltage": G2}
+    assert t["PanelName"].name == "PanelName" and t["Voltage"].name == "Voltage"
+    assert any("shared-parameter rows given: a row with no NAME is NOT used" in n for n in t.notes)
+
+
+def test_an_alternatives_guid_is_never_reused_by_another_name(tmp_path):
+    path = _file(tmp_path, _row(G1, "Voltage", "TEXT") + _row(G2, "Voltage", "ELECTRICAL_POTENTIAL")
+                 + _row(G2, "PanelName"))
+    t = SK.read_shared_parameter_file(path)
+    assert "PanelName" not in t
+    assert any("line 9: row 'PanelName' NOT used -- its GUID is already used by row 'Voltage'"
+               in n for n in t.notes)
+    sp = F.make_panelboard(shared_params=path).shared_parameters()
+    assert list(sp.values()).count(G2) == 1
