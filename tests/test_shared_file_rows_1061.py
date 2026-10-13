@@ -72,9 +72,58 @@ def test_parsed_rows_with_one_guid_twice_keep_the_first_name():
     assert list(t) == ["A"] and any("row 'B' NOT used" in n for n in t.notes)
 
 
+def test_a_later_row_of_a_name_stands_in_for_one_that_cannot_be_used(tmp_path):
+    """Every row is checked against the rows already USED, in file order (#1072
+    review): a Width row whose GUID is taken is not used, so the next Width row --
+    with its own GUID -- is the one used, and no note says otherwise."""
+    G6 = "0000dddd-1061-4000-8000-000000000006"
+    path = _file(tmp_path, _row(G1, "PanelName") + _row(G1, "Width", "LENGTH")
+                 + _row(G6, "Width", "LENGTH"))
+    t = SK.read_shared_parameter_file(path)
+    assert {k: v.guid for k, v in t.items()} == {"PanelName": G1, "Width": G6}
+    notes = "\n".join(t.notes)
+    assert "line 8: row 'Width' NOT used -- its GUID is already row 'PanelName'" in notes
+    assert "repeats" not in notes and "line 9" not in notes
+    with pytest.raises(ValueError, match=r":8: GUID .* under two names"):
+        SK.read_shared_parameter_file(path, strict=True)      # the FIRST problem, by line
+    prod = F.make_panelboard(shared_params=path)
+    assert prod.shared_parameters().get("Width") == G6
+
+
+def test_parsed_rows_are_canonicalised_and_checked_like_a_file():
+    rows = {"PanelName": SK.SharedParamDef(guid="{" + G1.upper() + "}", name="PanelName",
+                                           datatype="TEXT"),
+            "Voltage": SK.SharedParamDef(guid="not-a-guid", name="Voltage",
+                                         datatype="ELECTRICAL_POTENTIAL"),
+            "": SK.SharedParamDef(guid=G3, name="", datatype="TEXT")}
+    t = SK.shared_param_table(rows)
+    assert {k: v.guid for k, v in t.items()} == {"PanelName": G1}
+    notes = "\n".join(t.notes)
+    assert "row 'Voltage' NOT used -- it has no valid GUID" in notes
+    assert "a row with no NAME is NOT used" in notes
+    prod = F.make_panelboard(shared_params=rows)            # never refused (hard rule 1)
+    assert prod.shared_parameters() == {"PanelName": G1}
+
+
+def test_a_table_passed_in_keeps_its_notes():
+    t = SK.SharedParamTable({"A": SK.SharedParamDef(guid=G1, name="A", datatype="TEXT")},
+                            notes=["shared-parameter file x.txt line 3: row 'Z' NOT used"])
+    assert SK.shared_param_table(t).notes[0].endswith("row 'Z' NOT used")
+    doc = SK.new_family_document("generic_model", "Zz Notes", shared_params=t)
+    assert any(n.endswith("row 'Z' NOT used") for n in doc.notes)
+
+
+def test_a_file_row_with_no_name_is_not_used(tmp_path):
+    t = SK.read_shared_parameter_file(_file(tmp_path, _row(G1, "") + _row(G2, "PanelName")))
+    assert list(t) == ["PanelName"]
+    assert any("line 7: a row with no NAME is NOT used" in n for n in t.notes)
+
+
 def test_a_constructor_delivers_and_says_which_rows(tmp_path):
     path = _file(tmp_path, _row(G1, "PanelName") + _row(G2, "PanelName")
-                 + _row("xyz", "Phases", "INTEGER") + _row(G1, "Panel Alias"))
+                 + _row("xyz", "Phases", "INTEGER") + _row(G1, "Panel Alias")
+                 # a name the panelboard DOES author, on a GUID already used: never shared
+                 + _row(G1, "Voltage", "ELECTRICAL_POTENTIAL"))
     prod = F.make_panelboard(shared_params=path)
     rep = prod.write(str(tmp_path / "p.rfa"))
     assert rep["validate"]["family_mode"]["n_errors"] == 0
@@ -82,8 +131,10 @@ def test_a_constructor_delivers_and_says_which_rows(tmp_path):
     assert "line 8: row 'PanelName' NOT used" in notes and "row 'Phases' NOT used" in notes
     guids = [str(pe.refs.get("guid") or (pe.obj.get("m_guid") or "")).lower()
              for pe in prod.doc.params.values() if pe.class_name == "ParamElemExternal"]
-    assert guids.count(G1) <= 1                          # never one GUID twice
+    assert guids.count(G1) == 1                          # never one GUID twice
     assert prod.shared_parameters().get("PanelName") == G1   # the first row is the one used
+    assert "Voltage" not in prod.shared_parameters()
+    assert "row 'Voltage' NOT used -- its GUID is already row 'PanelName'" in notes
 
 
 def test_the_cli_delivers(tmp_path):

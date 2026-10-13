@@ -64,6 +64,7 @@ import pickle
 import math
 import struct
 import time
+import dataclasses
 import uuid
 import zlib
 from dataclasses import dataclass, field as dc_field
@@ -1186,18 +1187,44 @@ class SharedParamTable(dict):
         self.notes: List[str] = list(notes or [])
 
 
-def _one_guid_per_row(table: Dict[str, SharedParamDef], notes: List[str]) -> SharedParamTable:
-    """The first name a GUID appears under keeps it; a later name is not used -- a
-    family never carries one GUID twice (#1061)."""
-    out, owner = SharedParamTable(notes=notes), {}
-    for name, d in table.items():
-        g = str(getattr(d, "guid", "")).lower()
-        if g and g in owner:
-            out.notes.append(f"shared-parameter file row {name!r} NOT used -- its GUID is "
-                             f"already row {owner[g]!r}'s, and one family never carries a GUID "
-                             f"twice")
+def _usable_rows(rows: Sequence[Tuple[str, SharedParamDef]], *, refuse) -> SharedParamTable:
+    """The rows a family may use, in order, each checked against the rows already
+    USED (#1061): one with no name, or no valid GUID, is not used; a name already
+    used is not used again (the earlier row is the one used); a GUID already used
+    under another name is not used (a family never carries one GUID twice).  A
+    GUID is canonicalised (lower case, hyphenated) so case and braces cannot hide
+    a repeat.  ``refuse(where, msg, note)`` records each row not used -- or raises,
+    for a strict read."""
+    out, owner = SharedParamTable(), {}
+    for where, d in rows:
+        name = str(getattr(d, "name", "") or "")
+        if not name.strip():
+            refuse(where, "PARAM row with no NAME", "a row with no NAME is NOT used")
             continue
-        owner[g] = name
+        try:
+            guid = str(uuid.UUID(str(getattr(d, "guid", "") or "")))
+        except ValueError:
+            refuse(where, f"PARAM {name!r} has no valid GUID",
+                   f"row {name!r} NOT used -- it has no valid GUID")
+            continue
+        if name in out:
+            refuse(where, f"duplicate PARAM name {name!r}",
+                   f"row {name!r} NOT used -- the name repeats an earlier row, which is "
+                   f"the one used")
+            continue
+        if guid in owner:
+            refuse(where, f"GUID {guid} under two names ({owner[guid]!r}, {name!r})",
+                   f"row {name!r} NOT used -- its GUID is already row {owner[guid]!r}'s, "
+                   f"and one family never carries a GUID twice")
+            continue
+        owner[guid] = name
+        if guid != getattr(d, "guid", None) or name != getattr(d, "name", None):
+            d = (dataclasses.replace(d, guid=guid, name=name) if dataclasses.is_dataclass(d)
+                 else SharedParamDef(guid=guid, name=name,
+                                     datatype=getattr(d, "datatype", ""),
+                                     group=getattr(d, "group", ""),
+                                     description=getattr(d, "description", ""),
+                                     visible=getattr(d, "visible", True)))
         out[name] = d
     return out
 
@@ -1210,17 +1237,20 @@ def read_shared_parameter_file(path: str, *, strict: bool = False) -> SharedPara
     UTF-16 LE with a BOM; ours is UTF-8).
 
     A file the user hands us is input we do not control, so a row we cannot read
-    costs that row, never the family (#1061, hard rule 1): a PARAM row with no
-    valid GUID, a repeated name (the first row wins), a GUID under a second name
-    (the first name wins) or a row before its ``*KIND`` header is NOT used, and the
-    returned table's ``notes`` name each.  ``strict=True`` raises ``ValueError``
-    on the first instead (tools that audit a file)."""
+    costs that row, never the family (#1061, hard rule 1).  Each PARAM row is
+    checked in file order against the rows already USED (:func:`_usable_rows`): a
+    row with no name or no valid GUID, a name already used (that earlier row is the
+    one used) or a GUID already used under another name is NOT used -- so a later
+    row of a name stands in for an earlier one that could not be used -- and so is
+    a row before its ``*KIND`` header.  The returned table's ``notes`` name each,
+    with its line.  ``strict=True`` raises ``ValueError`` at the first in the file
+    instead (tools that audit a file)."""
     with open(path, "rb") as fh:
         raw = fh.read()
     enc = "utf-16" if raw[:2] in (b"\xff\xfe", b"\xfe\xff") else "utf-8-sig"
     headers: Dict[str, List[str]] = {}
     groups: Dict[str, str] = {}
-    out: Dict[str, SharedParamDef] = {}
+    params: List[Tuple[int, SharedParamDef]] = []
     notes: List[str] = []
     where = os.path.basename(str(path))
 
@@ -1245,31 +1275,18 @@ def read_shared_parameter_file(path: str, *, strict: bool = False) -> SharedPara
         if kind == "GROUP":
             groups[row.get("ID", "")] = row.get("NAME", "")
         elif kind == "PARAM":
-            name = row.get("NAME", "")
-            try:
-                guid = str(uuid.UUID(row.get("GUID", "")))
-            except ValueError:
-                refuse(ln, f"PARAM {name!r} has no valid GUID",
-                       f"row {name!r} NOT used -- it has no valid GUID")
-                continue
-            if name in out:
-                refuse(ln, f"duplicate PARAM name {name!r}",
-                       f"row {name!r} NOT used -- the name repeats an earlier row, which "
-                       f"is the one used")
-                continue
-            out[name] = SharedParamDef(
-                guid=guid, name=name, datatype=row.get("DATATYPE", ""),
+            params.append((ln, SharedParamDef(
+                guid=row.get("GUID", ""), name=row.get("NAME", ""),
+                datatype=row.get("DATATYPE", ""),
                 group=groups.get(row.get("GROUP", ""), row.get("GROUP", "")),
                 description=row.get("DESCRIPTION", ""),
-                visible=row.get("VISIBLE", "1").strip() != "0")
-    if strict:
-        seen: Dict[str, str] = {}
-        for name, d in out.items():
-            if d.guid in seen:
-                raise ValueError(f"{path}: GUID {d.guid} under two names "
-                                 f"({seen[d.guid]!r}, {name!r})")
-            seen[d.guid] = name
-    return _one_guid_per_row(out, notes)
+                visible=row.get("VISIBLE", "1").strip() != "0")))
+    # every row is checked in file order against the rows already used, so a
+    # later row of a name stands in for an earlier one that could not be used,
+    # and a strict read stops at the first problem in the file
+    table = _usable_rows(params, refuse=refuse)
+    table.notes = notes
+    return table
 
 
 #: ``shared_params=``: a shared-parameter file path, its parsed rows, or a user's
@@ -1319,8 +1336,18 @@ def shared_param_table(shared_params: SharedParamsArg) -> Dict[str, SharedParamD
         return {}
     if isinstance(shared_params, str):
         return read_shared_parameter_file(shared_params)
-    return _one_guid_per_row(dict(shared_params),
-                             list(getattr(shared_params, "notes", None) or []))
+    notes = list(getattr(shared_params, "notes", None) or [])
+
+    def refuse(_where, _msg: str, note: str) -> None:
+        notes.append(f"shared-parameter {note}")
+    rows = []
+    for key, d in dict(shared_params).items():       # the key is the row's name
+        if getattr(d, "name", key) != key and dataclasses.is_dataclass(d):
+            d = dataclasses.replace(d, name=key)
+        rows.append((None, d))
+    table = _usable_rows(rows, refuse=refuse)
+    table.notes = notes
+    return table
 
 
 def family_param_value(param_id: int, value: Any = 0.0, *,
