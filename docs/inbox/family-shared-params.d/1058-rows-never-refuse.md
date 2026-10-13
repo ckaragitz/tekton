@@ -19,42 +19,55 @@ Now:
 - **A YESNO row is authored SHARED** at its GUID with the Yes/No storage (`ParamDefYesNo`), the
   storage class the parameter-profile path already writes (#866). That is #1058 DONE (1).
 - **Every other row the writer cannot author is not used.** The parameter is authored LOCAL, and a
-  note names the row and the true reason:
-  - **a datatype not yet authored shared** (NUMBER_OF_POLES, ELECTRICAL_FREQUENCY …): "this writer
-    does not author a shared 'NUMBER_OF_POLES' parameter yet (the row itself is fine)". DONE (1)
-    allows a number-of-poles row to stay local; panel_can's own poles parameter is local-only
-    anyway.
-  - **a disagreeing datatype:** "the file declares DATATYPE 'TEXT' but the family authors it as …
-    (fix the file row to share it)";
-  - **a per-instance or formula parameter:** "this route does not share such a parameter (the
-    parameter-profile path does, #866)".
+  note names the row and the true reason. The reasons are checked in this order, so a note never
+  tells the user to fix a row that would not be shared anyway (#1068's second review):
+  1. **a per-instance or formula parameter:** "this route does not share such a parameter whatever
+     the row (the parameter-profile path does, #866)";
+  2. **a datatype whose spec is known but not authored shared yet** (`UNSHARED_DATATYPE_SPECS`:
+     NUMBER_OF_POLES, ELECTRICAL_FREQUENCY), when that spec is the parameter's: "this writer does
+     not author a shared 'NUMBER_OF_POLES' parameter yet (the row itself suits the parameter)".
+     DONE (1) allows a number-of-poles row to stay local; panel_can's own poles parameter is
+     local-only anyway;
+  3. **a datatype the writer does not know** (a typo such as LENGHT): "its DATATYPE … is not one
+     this writer knows, so it is not checked against the family's …" -- never "the row is fine";
+  4. **a disagreeing datatype** (including a known-but-unshared one on a parameter it does not
+     suit): "the file declares DATATYPE 'TEXT' but the family authors it as … (fix the file row to
+     share it)".
+- **A DATATYPE is read without regard to case or surrounding blanks**, in `add_family_parameter`
+  and in `shared_datatype_matches`, which panel_can's own check calls with the file's raw value.
 Two things hold as before:
 - No second GUID ever papers over a disagreement. That was #165's reason for the refusal, and it
   stands.
 - A row that matches is still authored SHARED at its GUID.
 
 ## Evidence
-- `tests/test_shared_rows_never_refuse_1058.py`: **7 passed**. One file holds a YESNO type
+- `tests/test_shared_rows_never_refuse_1058.py`: **13 passed**. One file holds a YESNO type
   switch, a per-instance switch, a formula switch, a NUMBER_OF_POLES row, a TEXT Width and a
   matching Voltage. With it:
   - `make_panelboard`, `make_transformer` and `make_device` each deliver VALID with 0 errors;
-  - every unusable row is local, its note giving its own reason;
-  - the YESNO switch and Voltage are shared;
+  - each constructor's own set of rows is checked: those it authors local carry a note giving
+    their own reason, those it can share are shared (a constructor that never authors a row is not
+    counted as passing it);
   - `make_family.py panelboard --shared-params` exits 0.
+- **Each reason is the true one:** five single-parameter cases pin the order above (a per-instance
+  parameter with a mismatched row, a formula one, NUMBER_OF_POLES on a length, two unknown
+  datatypes), and none of their notes says the row is fine.
 - **The YESNO row read back from the written panelboard** is a `ParamElemExternal` with
   `ParamDefYesNo` storage at the row's GUID. Its value equals the local build's, and no GUID appears
   twice.
 - **The per-instance and formula branches are pinned directly:** a matching LENGTH row leaves the
   parameter local with its instance binding (`m_instanceParam`) or its formula, while a plain one is
   shared.
-- **Mutation.** Five single-line mutations each fail the file:
-  - the formula condition dropped;
-  - the local fallback losing its instance binding;
-  - the Yes/No storage dropped;
-  - YESNO unmapped;
-  - the not-yet-shared note dropped.
+- **Mutation.** Each of these single-line mutations fails the file:
+  - round 1: the formula condition dropped; the local fallback losing its instance binding; the
+    Yes/No storage dropped; YESNO unmapped; the not-yet-shared note dropped;
+  - round 2 (7 of 7 killed): the instance check moved back after the datatype checks; `.upper()`
+    or `.strip()` dropped in `add_family_parameter`; `.strip()` dropped in
+    `shared_datatype_matches`; the not-yet-shared branch dropped, or taken for any spec; the
+    unknown-datatype branch dropped.
 
-  Before this round, a review's mutants on the first two survived.
+  Before round 1, a review's mutants on the first two survived; before round 2, the matcher's
+  `.strip()` mutant survived until its direct pin was added.
 - **A standard parameter is kept, not dropped.** A standard parameter (the #601 step) whose row
   has another datatype used to vanish from the family, reported only as "skipped" (found by
   #1053's fourth review). It is now authored LOCAL with the row named. Two such rows are read back
@@ -68,12 +81,12 @@ Two things hold as before:
   datatype check.
 - **Related suites:** this file, `test_panel_can_1047`, `test_famgen_factory`,
   `test_famgen_skeleton`, `test_param_profile_866/875/886` and `test_shared_params_from_rfa_866`
-  give **221 passed, 14 skipped**. Plugin sync is clean.
+  give **227 passed, 14 skipped**. Plugin sync is clean.
 
 ## Limits
 - **Still local:**
-  - A NUMBER_OF_POLES row (and any other datatype not in `SHARED_DATATYPE_SPECS`) stays local
-    through `add_family_parameter`.
+  - A NUMBER_OF_POLES or ELECTRICAL_FREQUENCY row stays local through `add_family_parameter`,
+    and so does a row of a datatype the writer does not know.
   - A per-instance or formula parameter with a matching row stays local here, while the
     parameter-profile path (#866) shares such parameters.
 - **Storage.** A matching TEXT or INTEGER row is authored with the `ParamDefValue` storage, not

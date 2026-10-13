@@ -1158,10 +1158,19 @@ SHARED_DATATYPE_SPECS = {
 #: not the measurable ``ParamDefValue`` (#1058; the profile path's classes, #866)
 SHARED_DATATYPE_KIND = {"YESNO": "ParamDefYesNo"}
 
+#: DATATYPEs whose spec is known but which this writer does not author SHARED yet
+#: through :meth:`FamilyDoc.add_family_parameter`: a row of one of these for a
+#: parameter of that spec is fine and stays local, said so (#1068 review)
+UNSHARED_DATATYPE_SPECS = {
+    "NUMBER_OF_POLES": ("autodesk.spec:spec.int64",),
+    "ELECTRICAL_FREQUENCY": ("autodesk.spec.aec.electrical:frequency",),
+}
+
 
 def shared_datatype_matches(datatype: str, spec_type_id: str) -> bool:
     """True when a file row's DATATYPE and a family parameter's spec agree."""
-    return str(spec_type_id).rsplit("-", 1)[0] in SHARED_DATATYPE_SPECS.get(str(datatype).upper(), ())
+    return str(spec_type_id).rsplit("-", 1)[0] in SHARED_DATATYPE_SPECS.get(
+        str(datatype).strip().upper(), ())
 
 
 def read_shared_parameter_file(path: str) -> Dict[str, SharedParamDef]:
@@ -1936,12 +1945,15 @@ class FamilyDoc:
         ``ParamElemExternal`` at that row's GUID (:meth:`add_shared_parameter`).
         A YESNO row is authored with the Yes/No storage (#1058).  A row the writer
         cannot author as that parameter is NOT used -- the parameter is authored
-        LOCAL and a note says why: a DATATYPE this writer does not author shared
-        (NUMBER_OF_POLES, ...: the row is fine), a DATATYPE that is not
-        ``spec_type_id`` (a schedule bound to the file's definition would reject
-        any other), or a per-instance / formula-driven parameter, which this route
-        does not share (the parameter-profile path does, #866).  Never a second
-        GUID, never a refused job (#1058, hard rule 1).
+        LOCAL and a note says why, checked in this order: a per-instance /
+        formula-driven parameter, which this route does not share whatever the row
+        (the parameter-profile path does, #866); a DATATYPE whose spec is known but
+        not authored shared here yet (:data:`UNSHARED_DATATYPE_SPECS` -- the row is
+        fine when that spec is the parameter's); a DATATYPE this writer does not know
+        (not checked against the parameter's spec); or a DATATYPE that is not
+        ``spec_type_id`` (a schedule bound to the file's definition would reject any
+        other: fix the row).  Never a second GUID, never a refused job (#1058, hard
+        rule 1).
 
         ``spec_type_id`` = the measurable spec (:data:`SPEC_LENGTH`,
         :data:`SPEC_VOLTAGE`, ...); ``group_type_id`` = the palette group;
@@ -1956,16 +1968,21 @@ class FamilyDoc:
         row = self.shared_params.get(name)
         if row is not None:
             why = None
-            dt = str(row.datatype).upper()
-            if dt not in SHARED_DATATYPE_SPECS:
+            dt = str(row.datatype).strip().upper()
+            spec = str(spec_type_id).rsplit("-", 1)[0]
+            if is_instance or formula:
+                why = ("it is authored per instance or by formula here, and this route does "
+                       "not share such a parameter whatever the row (the parameter-profile "
+                       "path does, #866)")
+            elif dt in UNSHARED_DATATYPE_SPECS and spec in UNSHARED_DATATYPE_SPECS[dt]:
                 why = (f"this writer does not author a shared {row.datatype!r} parameter yet "
-                       f"(the row itself is fine)")
-            elif not shared_datatype_matches(row.datatype, spec_type_id):
+                       f"(the row itself suits the parameter)")
+            elif dt not in SHARED_DATATYPE_SPECS and dt not in UNSHARED_DATATYPE_SPECS:
+                why = (f"its DATATYPE {row.datatype!r} is not one this writer knows, so it "
+                       f"is not checked against the family's {spec_type_id!r}")
+            elif not shared_datatype_matches(dt, spec_type_id):
                 why = (f"the file declares DATATYPE {row.datatype!r} but the family authors it "
                        f"as {spec_type_id!r} (fix the file row to share it)")
-            elif is_instance or formula:
-                why = ("it is authored per instance or by formula here, and this route does "
-                       "not share such a parameter (the parameter-profile path does, #866)")
             if why is None:
                 return self.add_shared_parameter(name, row.guid, spec_type_id, group_type_id,
                                                  kind=SHARED_DATATYPE_KIND.get(dt,

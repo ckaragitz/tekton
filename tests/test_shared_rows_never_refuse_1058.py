@@ -1,10 +1,13 @@
 """#1058: a row of a shared-parameter file never refuses a family job.
 
-A row the writer cannot author as the family's parameter -- a DATATYPE the writer has
-no spec for (YESNO, NUMBER_OF_POLES), a datatype that disagrees with the parameter's
-spec, or a parameter authored per instance / by formula -- is NOT used: the parameter
-is authored LOCAL and a note names the row and why.  Never a second GUID, never a
-refused job (hard rule 1).  A row that matches is still authored SHARED at its GUID.
+A YESNO row is authored SHARED with the Yes/No storage.  Any other row the writer
+cannot author as the family's parameter is NOT used: the parameter is authored LOCAL
+and a note gives the true reason, checked in order -- a per-instance / formula
+parameter (never shared on this route, whatever the row); a DATATYPE known but not
+shared yet (NUMBER_OF_POLES on an integer parameter: the row suits it); a DATATYPE
+this writer does not know (not checked); a DATATYPE that disagrees (fix the row).
+Never a second GUID, never a refused job (hard rule 1).  A row that matches is still
+authored SHARED at its GUID.
 
 Synthetic rows only (made-up GUIDs).
 """
@@ -31,8 +34,12 @@ ROWS = (("Show Front Clearance", "YESNO"),          # a type Yes/No: authored SH
 GUID = {n: f"0000bbbb-1058-4000-8000-00000000000{i}" for i, (n, _dt) in enumerate(ROWS, start=1)}
 LOCAL_WHY = {EC.P_SHOW: "per instance or by formula", EC.P_FRONT_ON: "per instance or by formula",
              "Number of Poles": "does not author a shared 'NUMBER_OF_POLES' parameter yet "
-                                "(the row itself is fine)",
+                                "(the row itself suits the parameter)",
              "Width": "the file declares DATATYPE 'TEXT'"}
+#: what each constructor authors of ROWS -- exercised, never skipped silently
+EXERCISED = {"panelboard": ({EC.P_SHOW, EC.P_FRONT_ON, "Width"}, {"Show Front Clearance", "Voltage"}),
+             "transformer": ({EC.P_SHOW, EC.P_FRONT_ON, "Width"}, {"Show Front Clearance", "Voltage"}),
+             "device": ({"Number of Poles", "Width"}, {"Voltage"})}
 
 
 def _file(tmp_path):
@@ -51,22 +58,19 @@ def _file(tmp_path):
     lambda sp: F.make_transformer(kva=45, shared_params=sp),
     lambda sp: F.make_device("duplex-receptacle", shared_params=sp)],
     ids=["panelboard", "transformer", "device"])
-def test_every_constructor_delivers_with_the_rows_it_cannot_share(make, tmp_path):
+def test_every_constructor_delivers_with_the_rows_it_cannot_share(make, tmp_path, request):
     prod = make(_file(tmp_path))
     rep = prod.write(str(tmp_path / "x.rfa"))
     assert rep["validate"]["family_mode"]["n_errors"] == 0
     P = prod.doc.params
-    seen = 0
-    for name, why in LOCAL_WHY.items():
-        if name in P:
-            seen += 1
-            assert P[name].class_name == "ParamElemFamily", name
-            assert any(f"row {name!r} NOT used" in n and why in n for n in prod.doc.notes), name
-    assert seen >= 2 and "Width" in P
-    for name in ("Show Front Clearance", "Voltage"):
-        if name in P:
-            assert P[name].class_name == "ParamElemExternal", name
-            assert not any(f"row {name!r} NOT used" in n for n in prod.doc.notes), name
+    local, shared = EXERCISED[request.node.callspec.id]
+    for name in local:
+        assert P[name].class_name == "ParamElemFamily", name
+        assert any(f"row {name!r} NOT used" in n and LOCAL_WHY[name] in n
+                   for n in prod.doc.notes), name
+    for name in shared:
+        assert P[name].class_name == "ParamElemExternal", name
+        assert not any(f"row {name!r} NOT used" in n for n in prod.doc.notes), name
 
 
 def test_the_cli_delivers_too(tmp_path):
@@ -171,3 +175,43 @@ def test_a_per_instance_or_formula_parameter_keeps_its_binding_local():
         assert any(f"row {name!r} NOT used" in n and "per instance or by formula" in n
                    and "the parameter-profile path does" in n for n in doc.notes), name
     assert not any("row 'Plain Len' NOT used" in n for n in doc.notes)
+
+
+
+@pytest.mark.parametrize("dt,spec,kw,why", [
+    # the order of the reasons (#1068 review round 2): a per-instance parameter is
+    # never shared here, so a mismatched row is not told "fix the row"
+    ("TEXT", "SPEC_YESNO", {"is_instance": True}, "per instance or by formula"),
+    ("LENGTH", "SPEC_LENGTH", {"formula": "1'"}, "per instance or by formula"),
+    # a known-but-unshared datatype on a parameter it does not suit: fix the row
+    ("NUMBER_OF_POLES", "SPEC_LENGTH", {}, "the file declares DATATYPE 'NUMBER_OF_POLES'"),
+    # a datatype the writer does not know: not checked, never "the row is fine"
+    ("LENGHT", "SPEC_LENGTH", {}, "is not one this writer knows"),
+    ("FOO_BAR", "SPEC_VOLTAGE", {}, "is not one this writer knows"),
+])
+def test_each_reason_is_the_true_one(dt, spec, kw, why):
+    from rvt.famgen import skeleton as SK
+    rows = {"P": SK.SharedParamDef(guid="0000eeee-1068-4000-8000-000000000001", name="P",
+                                   datatype=dt)}
+    doc = SK.new_family_document("generic_model", "Zz Reasons", shared_params=rows)
+    pe = doc.add_family_parameter("P", getattr(SK, spec), **kw)
+    assert pe.class_name == "ParamElemFamily"
+    note = [n for n in doc.notes if "row 'P' NOT used" in n]
+    assert len(note) == 1 and why in note[0], note
+    assert "suits the parameter" not in note[0] and "row itself is fine" not in note[0]
+
+
+def test_a_datatype_is_read_without_regard_to_case():
+    from rvt.famgen import skeleton as SK
+    rows = {n: SK.SharedParamDef(guid=f"0000eeee-1068-4000-8000-00000000001{i}", name=n,
+                                 datatype=dt)
+            for i, (n, dt) in enumerate((("Flag", "yesno"), ("Len", " length ")))}
+    doc = SK.new_family_document("generic_model", "Zz Case", shared_params=rows)
+    flag = doc.add_family_parameter("Flag", SK.SPEC_YESNO, default=1)
+    ln = doc.add_family_parameter("Len", SK.SPEC_LENGTH, default=1.0)
+    assert flag.class_name == ln.class_name == "ParamElemExternal"
+    assert flag.obj["m_pParamDef"]["ptr_class"] == "ParamDefYesNo"
+    # the matcher panel_can's own check calls with the file's raw DATATYPE (#1068 round 2)
+    assert SK.shared_datatype_matches(" yesno ", SK.SPEC_YESNO)
+    assert SK.shared_datatype_matches("Length\t", SK.SPEC_LENGTH)
+    assert not SK.shared_datatype_matches(" text ", SK.SPEC_LENGTH)
