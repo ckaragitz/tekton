@@ -135,6 +135,15 @@ def _lit(inches: float) -> str:
     return f"{float(inches) / 12.0:.15g}'"
 
 
+def _fmt(x: float, *near: float) -> str:
+    """``x`` as a note prints it: ``:g``, with more digits when that would read the
+    same as a different value it is set beside (#1067: "0.03125 in (built 0.03125 in)")."""
+    s = f"{x:g}"
+    if any(s == f"{y:g}" and y != x for y in near):
+        s = f"{x:.12g}"
+    return s
+
+
 def trim_formulas(lap_in: float = FLUSH_LAP_IN) -> Dict[str, str]:
     """The trim's size and placement as formulas of the surface switch: a surface
     trim is the box; a flush one laps the opening by ``lap_in`` on every side, so it
@@ -200,7 +209,7 @@ def make_panel_can(*, vendor: str = "eaton", line: str = "pow-r-line",
                            ("flush_lap_in", flush_lap_in, FLUSH_LAP_IN)):
         if val is not None:
             given.append(key)
-        dims[key] = float(val if val is not None else fact)
+        dims[key] = float(val if val is not None else fact) + 0.0   # never -0.0 (#1067)
     asked = dict(dims)                    # the sizes as given, before any snap (#1062)
     sizes = dict(dims)
     if mounting_height_in is not None:
@@ -216,11 +225,11 @@ def make_panel_can(*, vendor: str = "eaton", line: str = "pow-r-line",
     # is built at the shortest one, a lap that short is no lap
     snapped = []
     if dims["box_thickness_in"] < FLOOR_SNAP_IN:
-        snapped.append(f"a {dims['box_thickness_in']:g} in wall is built "
+        snapped.append(f"a {_fmt(dims['box_thickness_in'], FLOOR_SNAP_IN)} in wall is built "
                        f"{FLOOR_SNAP_IN:g} in thick")
         dims["box_thickness_in"] = FLOOR_SNAP_IN
     if 0 < dims["flush_lap_in"] < FLOOR_SNAP_IN:
-        snapped.append(f"a {dims['flush_lap_in']:g} in flush lap is built as none (the "
+        snapped.append(f"a {_fmt(dims['flush_lap_in'], FLOOR_SNAP_IN)} in flush lap is built as none (the "
                        f"trim the size of the opening)")
         dims["flush_lap_in"] = 0.0
     W, H, D = _in(dims["width_in"]), _in(dims["height_in"]), _in(dims["depth_in"])
@@ -237,7 +246,7 @@ def make_panel_can(*, vendor: str = "eaton", line: str = "pow-r-line",
     if mh_in == 0:
         mh_in = 0.0                       # never "-0 in" (#1062)
     if mh_in != 0 and abs(mh_in) < FLOOR_SNAP_IN:
-        snapped.append(f"the box bottom {mh_in:g} in from the floor is ON it")
+        snapped.append(f"the box bottom {_fmt(mh_in, FLOOR_SNAP_IN, -FLOOR_SNAP_IN)} in from the floor is ON it")
         mh_in = 0.0
     # only ever onto the floor: a lap of 1/32 in or more is never within 1/32 in
     # of a box already on it, so this never lifts one
@@ -416,8 +425,10 @@ def make_panel_can(*, vendor: str = "eaton", line: str = "pow-r-line",
         "visibility). No switch or resize has a desktop verdict (hard rule 4).")
     if given:
         prod.notes.append("GIVEN, not the catalog's or our nominal: " + ", ".join(
-            f"{k[:-3].replace('_', ' ')} {asked[k]:g} in"
-            + (f" (built {dims[k]:g} in)" if dims[k] != asked[k] else "") for k in given))
+            f"{k[:-3].replace('_', ' ')} {_fmt(asked[k], dims[k], FLOOR_SNAP_IN)} in"
+            + (f" (built {_fmt(dims[k], asked[k], FLOOR_SNAP_IN)} in)"
+               if dims[k] != asked[k] else "")
+            for k in given))
     return prod
 
 
