@@ -24,6 +24,24 @@ sys.path.insert(0, os.path.join(ROOT, "src"))
 
 from rvt.famgen import equipment_clearance as EC  # noqa: E402
 from rvt.famgen import factory as F  # noqa: E402
+from rvt.famgen import skeleton as SK  # noqa: E402
+from conftest import ladder_constants  # noqa: E402
+
+pytestmark = pytest.mark.usefixtures("no_release_leak")   # the read-back climbs the ladder
+
+
+@pytest.fixture
+def release_leak_extra():
+    return ladder_constants
+
+
+@pytest.fixture(scope="module", autouse=True)
+def _warm_default_decoder(tmp_path_factory):
+    """The first write in a process installs the bundled schema and seeds the
+    native default ADocument decoder (by design); do that once before the
+    guard's first snapshot, so only a swap the read-back leaves can turn it red."""
+    F.make_device().write(str(tmp_path_factory.mktemp("w1058") / "w.rfa"))
+
 
 ROWS = (("Show Front Clearance", "YESNO"),          # a type Yes/No: authored SHARED (#1058)
         (EC.P_SHOW, "YESNO"),                       # per instance: local
@@ -35,7 +53,8 @@ GUID = {n: f"0000bbbb-1058-4000-8000-00000000000{i}" for i, (n, _dt) in enumerat
 LOCAL_WHY = {EC.P_SHOW: "per instance or by formula", EC.P_FRONT_ON: "per instance or by formula",
              "Number of Poles": "does not author a shared 'NUMBER_OF_POLES' parameter yet "
                                 "(the row itself suits the parameter)",
-             "Width": "the file declares DATATYPE 'TEXT'"}
+             "Width": f"the file declares DATATYPE 'TEXT' but the family authors it as "
+                      f"{SK.SPEC_LENGTH!r} (fix the file row to share it)"}
 #: what each constructor authors of ROWS -- exercised, never skipped silently
 EXERCISED = {"panelboard": ({EC.P_SHOW, EC.P_FRONT_ON, "Width"}, {"Show Front Clearance", "Voltage"}),
              "transformer": ({EC.P_SHOW, EC.P_FRONT_ON, "Width"}, {"Show Front Clearance", "Voltage"}),
@@ -173,7 +192,8 @@ def test_a_per_instance_or_formula_parameter_keeps_its_binding_local():
     assert plain.class_name == "ParamElemExternal"
     for name in ("Inst Len", "Form Len"):
         assert any(f"row {name!r} NOT used" in n and "per instance or by formula" in n
-                   and "the parameter-profile path does" in n for n in doc.notes), name
+                   and "the parameter-profile path shares its own parameters so" in n
+                   for n in doc.notes), name
     assert not any("row 'Plain Len' NOT used" in n for n in doc.notes)
 
 
@@ -184,7 +204,7 @@ def test_a_per_instance_or_formula_parameter_keeps_its_binding_local():
     ("TEXT", "SPEC_YESNO", {"is_instance": True}, "per instance or by formula"),
     ("LENGTH", "SPEC_LENGTH", {"formula": "1'"}, "per instance or by formula"),
     # a known-but-unshared datatype on a parameter it does not suit: fix the row
-    ("NUMBER_OF_POLES", "SPEC_LENGTH", {}, "the file declares DATATYPE 'NUMBER_OF_POLES'"),
+    ("NUMBER_OF_POLES", "SPEC_LENGTH", {}, "(fix the file row to share it)"),
     # a datatype the writer does not know: not checked, never "the row is fine"
     ("LENGHT", "SPEC_LENGTH", {}, "is not one this writer knows"),
     ("FOO_BAR", "SPEC_VOLTAGE", {}, "is not one this writer knows"),

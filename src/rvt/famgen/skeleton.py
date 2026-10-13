@@ -1947,7 +1947,7 @@ class FamilyDoc:
         cannot author as that parameter is NOT used -- the parameter is authored
         LOCAL and a note says why, checked in this order: a per-instance /
         formula-driven parameter, which this route does not share whatever the row
-        (the parameter-profile path does, #866); a DATATYPE whose spec is known but
+        (the parameter-profile path shares its own so, #866); a DATATYPE whose spec is known but
         not authored shared here yet (:data:`UNSHARED_DATATYPE_SPECS` -- the row is
         fine when that spec is the parameter's); a DATATYPE this writer does not know
         (not checked against the parameter's spec); or a DATATYPE that is not
@@ -1973,7 +1973,7 @@ class FamilyDoc:
             if is_instance or formula:
                 why = ("it is authored per instance or by formula here, and this route does "
                        "not share such a parameter whatever the row (the parameter-profile "
-                       "path does, #866)")
+                       "path shares its own parameters so, #866)")
             elif dt in UNSHARED_DATATYPE_SPECS and spec in UNSHARED_DATATYPE_SPECS[dt]:
                 why = (f"this writer does not author a shared {row.datatype!r} parameter yet "
                        f"(the row itself suits the parameter)")

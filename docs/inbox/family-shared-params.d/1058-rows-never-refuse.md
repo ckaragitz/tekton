@@ -22,7 +22,7 @@ Now:
   note names the row and the true reason. The reasons are checked in this order, so a note never
   tells the user to fix a row that would not be shared anyway (#1068's second review):
   1. **a per-instance or formula parameter:** "this route does not share such a parameter whatever
-     the row (the parameter-profile path does, #866)";
+     the row (the parameter-profile path shares its own parameters so, #866)";
   2. **a datatype whose spec is known but not authored shared yet** (`UNSHARED_DATATYPE_SPECS`:
      NUMBER_OF_POLES, ELECTRICAL_FREQUENCY), when that spec is the parameter's: "this writer does
      not author a shared 'NUMBER_OF_POLES' parameter yet (the row itself suits the parameter)".
@@ -67,7 +67,12 @@ Two things hold as before:
     unknown-datatype branch dropped.
 
   Before round 1, a review's mutants on the first two survived; before round 2, the matcher's
-  `.strip()` mutant survived until its direct pin was added.
+  `.strip()` mutant survived until its direct pin was added. Round 3's review killed 12 of its own
+  13 mutants; the survivor (the "(fix the file row to share it)" hint deleted) is now pinned too.
+- **The release-leak guard.** The read-back climbs the read-side ladder, so the file takes
+  conftest's `no_release_leak` guard over `ladder_constants` (#707), with the default decoder warmed
+  once per module. Round 3's session CI was red for its absence
+  (`test_conftest_scaffolding`).
 - **A standard parameter is kept, not dropped.** A standard parameter (the #601 step) whose row
   has another datatype used to vanish from the family, reported only as "skipped" (found by
   #1053's fourth review). It is now authored LOCAL with the row named. Two such rows are read back
@@ -81,7 +86,8 @@ Two things hold as before:
   datatype check.
 - **Related suites:** this file, `test_panel_can_1047`, `test_famgen_factory`,
   `test_famgen_skeleton`, `test_param_profile_866/875/886` and `test_shared_params_from_rfa_866`
-  give **227 passed, 14 skipped**. Plugin sync is clean.
+  give **227 passed, 14 skipped**; with `test_conftest_scaffolding` **256 passed, 14 skipped**.
+  Plugin sync is clean.
 
 ## Limits
 - **Still local:**
@@ -97,6 +103,7 @@ Two things hold as before:
 ## BRANCH STATE
 - **Files:**
   - `src/rvt/famgen/skeleton.py` (`add_family_parameter`'s shared branch);
+  - `src/rvt/famgen/panel_can.py` (`_keep_local`'s docstring, now true of the YESNO row);
   - `tests/test_famgen_factory.py`, `tests/test_famgen_skeleton.py` (the refusal pins, now notes);
   - `tests/test_panel_can_1047.py` (its shared-file test: the YESNO row now shares);
   - `tests/test_shared_rows_never_refuse_1058.py`, `tests/ci_shard.d/1058-shared-rows.txt`;
