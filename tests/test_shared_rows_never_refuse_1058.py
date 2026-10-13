@@ -207,6 +207,10 @@ def test_a_per_instance_or_formula_parameter_keeps_its_binding_local():
     ("NUMBER_OF_POLES", "SPEC_LENGTH", {}, "(fix the file row to share it)"),
     # a datatype the writer does not know: not checked, never "the row is fine"
     ("LENGHT", "SPEC_LENGTH", {}, "is not one this writer knows"),
+    # a spec no shared datatype fits yet: fixing the row would not share it, so the
+    # note never says to (#1068 review round 4)
+    ("TEXT", "electrical:frequency", {}, "no DATATYPE this writer shares fits that spec"),
+    ("NUMBER", "electrical:frequency", {}, "no DATATYPE this writer shares fits that spec"),
     ("FOO_BAR", "SPEC_VOLTAGE", {}, "is not one this writer knows"),
 ])
 def test_each_reason_is_the_true_one(dt, spec, kw, why):
@@ -214,11 +218,15 @@ def test_each_reason_is_the_true_one(dt, spec, kw, why):
     rows = {"P": SK.SharedParamDef(guid="0000eeee-1068-4000-8000-000000000001", name="P",
                                    datatype=dt)}
     doc = SK.new_family_document("generic_model", "Zz Reasons", shared_params=rows)
-    pe = doc.add_family_parameter("P", getattr(SK, spec), **kw)
+    spec_id = (getattr(SK, spec) if spec.startswith("SPEC_") else
+               f"autodesk.spec.aec.{spec}-1.0.0")
+    pe = doc.add_family_parameter("P", spec_id, **kw)
     assert pe.class_name == "ParamElemFamily"
     note = [n for n in doc.notes if "row 'P' NOT used" in n]
     assert len(note) == 1 and why in note[0], note
     assert "suits the parameter" not in note[0] and "row itself is fine" not in note[0]
+    if spec_id.rsplit("-", 1)[0] not in SK.SHAREABLE_SPECS:
+        assert "fix the file row" not in note[0]
 
 
 def test_a_datatype_is_read_without_regard_to_case():

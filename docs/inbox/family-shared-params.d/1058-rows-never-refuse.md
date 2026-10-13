@@ -32,7 +32,9 @@ Now:
      this writer knows, so it is not checked against the family's …" -- never "the row is fine";
   4. **a disagreeing datatype** (including a known-but-unshared one on a parameter it does not
      suit): "the file declares DATATYPE 'TEXT' but the family authors it as … (fix the file row to
-     share it)".
+     share it)" -- the hint only where some datatype this writer shares fits the parameter's spec
+     (`SHAREABLE_SPECS`). For a spec none fits yet (frequency, demand factor, air flow …) the note
+     says so instead, since a fixed row would still not be shared (#1068's fourth review).
 - **A DATATYPE is read without regard to case or surrounding blanks**, in `add_family_parameter`
   and in `shared_datatype_matches`, which panel_can's own check calls with the file's raw value.
 Two things hold as before:
@@ -41,7 +43,7 @@ Two things hold as before:
 - A row that matches is still authored SHARED at its GUID.
 
 ## Evidence
-- `tests/test_shared_rows_never_refuse_1058.py`: **13 passed**. One file holds a YESNO type
+- `tests/test_shared_rows_never_refuse_1058.py`: **15 passed**. One file holds a YESNO type
   switch, a per-instance switch, a formula switch, a NUMBER_OF_POLES row, a TEXT Width and a
   matching Voltage. With it:
   - `make_panelboard`, `make_transformer` and `make_device` each deliver VALID with 0 errors;
@@ -49,9 +51,11 @@ Two things hold as before:
     their own reason, those it can share are shared (a constructor that never authors a row is not
     counted as passing it);
   - `make_family.py panelboard --shared-params` exits 0.
-- **Each reason is the true one:** five single-parameter cases pin the order above (a per-instance
+- **Each reason is the true one:** seven single-parameter cases pin the order above (a per-instance
   parameter with a mismatched row, a formula one, NUMBER_OF_POLES on a length, two unknown
-  datatypes), and none of their notes says the row is fine.
+  datatypes, TEXT and NUMBER rows on a frequency), and none of their notes says the row is fine;
+  none tells the user to fix a row for a spec no shared datatype fits (a mutant that always does
+  fails 2 tests).
 - **The YESNO row read back from the written panelboard** is a `ParamElemExternal` with
   `ParamDefYesNo` storage at the row's GUID. Its value equals the local build's, and no GUID appears
   twice.
@@ -86,7 +90,7 @@ Two things hold as before:
   datatype check.
 - **Related suites:** this file, `test_panel_can_1047`, `test_famgen_factory`,
   `test_famgen_skeleton`, `test_param_profile_866/875/886` and `test_shared_params_from_rfa_866`
-  give **227 passed, 14 skipped**; with `test_conftest_scaffolding` **256 passed, 14 skipped**.
+  give **229 passed, 14 skipped**; with `test_conftest_scaffolding` **258 passed, 14 skipped**.
   Plugin sync is clean.
 
 ## Limits
@@ -94,7 +98,7 @@ Two things hold as before:
   - A NUMBER_OF_POLES or ELECTRICAL_FREQUENCY row stays local through `add_family_parameter`,
     and so does a row of a datatype the writer does not know.
   - A per-instance or formula parameter with a matching row stays local here, while the
-    parameter-profile path (#866) shares such parameters.
+    parameter-profile path (#866) shares its own such parameters.
 - **Storage.** A matching TEXT or INTEGER row is authored with the `ParamDefValue` storage, not
   `ParamDefString` / `ParamDefInt`. That predates this PR and is a follow-up.
 - **Reader refusals.** A malformed row (bad GUID, repeated name) still refuses inside the reader,

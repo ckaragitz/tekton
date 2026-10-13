@@ -1166,6 +1166,10 @@ UNSHARED_DATATYPE_SPECS = {
     "ELECTRICAL_FREQUENCY": ("autodesk.spec.aec.electrical:frequency",),
 }
 
+#: every spec some DATATYPE above is shared as: a row can be fixed to share a
+#: parameter of one of these, and of no other spec yet (#1068 review round 4)
+SHAREABLE_SPECS = frozenset(s for specs in SHARED_DATATYPE_SPECS.values() for s in specs)
+
 
 def shared_datatype_matches(datatype: str, spec_type_id: str) -> bool:
     """True when a file row's DATATYPE and a family parameter's spec agree."""
@@ -1952,8 +1956,9 @@ class FamilyDoc:
         fine when that spec is the parameter's); a DATATYPE this writer does not know
         (not checked against the parameter's spec); or a DATATYPE that is not
         ``spec_type_id`` (a schedule bound to the file's definition would reject any
-        other: fix the row).  Never a second GUID, never a refused job (#1058, hard
-        rule 1).
+        other: fix the row -- said only where some DATATYPE this writer shares fits
+        that spec, :data:`SHAREABLE_SPECS`).  Never a second GUID, never a refused job
+        (#1058, hard rule 1).
 
         ``spec_type_id`` = the measurable spec (:data:`SPEC_LENGTH`,
         :data:`SPEC_VOLTAGE`, ...); ``group_type_id`` = the palette group;
@@ -1982,7 +1987,9 @@ class FamilyDoc:
                        f"is not checked against the family's {spec_type_id!r}")
             elif not shared_datatype_matches(dt, spec_type_id):
                 why = (f"the file declares DATATYPE {row.datatype!r} but the family authors it "
-                       f"as {spec_type_id!r} (fix the file row to share it)")
+                       f"as {spec_type_id!r} " + (
+                           "(fix the file row to share it)" if spec in SHAREABLE_SPECS else
+                           "(and no DATATYPE this writer shares fits that spec yet)"))
             if why is None:
                 return self.add_shared_parameter(name, row.guid, spec_type_id, group_type_id,
                                                  kind=SHARED_DATATYPE_KIND.get(dt,
