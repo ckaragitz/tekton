@@ -549,3 +549,42 @@ def test_every_caption_the_constructor_authors_is_in_a_shared_row_table(tmp_path
         if row["instance"] or row["formula"]:
             assert cap in local, cap
     assert not local & specs
+
+
+# -- #1062: the round-5 nits ----------------------------------------------------
+
+@pytest.mark.parametrize("kw,said", [
+    ({"flush_lap_in": 0.02, "surface": False, "mounting_height_in": 0},
+     "flush lap 0.02 in (built 0 in)"),
+    ({"box_thickness_in": 0.01, "mounting_height_in": 24}, "box thickness 0.01 in (built 0.03125 in)"),
+    ({"box_thickness_in": 0.05, "mounting_height_in": 24}, "box thickness 0.05 in")])
+def test_the_given_note_names_the_size_given_and_the_size_built(kw, said):
+    prod = PC.make_panel_can(**kw)
+    note = [n for n in prod.notes if n.startswith("GIVEN")][0]
+    assert said in note, note
+    if "built" not in said:
+        assert "built" not in note
+
+
+def test_a_box_one_snap_below_the_floor_is_refused():
+    with pytest.raises(PC.PanelCanError, match="below the floor"):
+        PC.make_panel_can(mounting_height_in=-PC.FLOOR_SNAP_IN)
+    prod = PC.make_panel_can(mounting_height_in=-0.0)
+    assert not any("-0 in" in n for n in prod.doc.notes)
+
+
+def test_a_lap_too_short_to_build_is_no_lap_in_the_file(tmp_path):
+    kw = {"surface": False, "mounting_height_in": 24}
+    a, b = str(tmp_path / "a.rfa"), str(tmp_path / "b.rfa")
+    PC.make_panel_can(flush_lap_in=0.02, **kw).write(a)
+    PC.make_panel_can(flush_lap_in=0.0, **kw).write(b)
+    ra, rb = readback(a), readback(b)
+    for cap in (PC.P_TRIM_W, PC.P_TRIM_H, PC.P_TRIM_Z):
+        assert ra[cap]["value"] == pytest.approx(rb[cap]["value"]), cap
+    assert ra[PC.P_TRIM_W]["value"] == pytest.approx(ra[PC.P_WIDTH]["value"])
+
+
+def test_the_room_inside_is_measured_with_the_wall_as_built():
+    # 0.06 in walls of 0.01 in leave room; walls built at 1/32 in do not
+    with pytest.raises(PC.PanelCanError, match="nothing inside"):
+        PC.make_panel_can(width_in=0.12, height_in=20, depth_in=6, box_thickness_in=0.01)
