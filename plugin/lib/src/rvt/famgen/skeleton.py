@@ -1136,6 +1136,7 @@ class SharedParamDef:
 #: file's definition would reject a value of any other type
 SHARED_DATATYPE_SPECS = {
     "TEXT": ("autodesk.spec:spec.string",),
+    "YESNO": ("autodesk.spec:spec.bool",),             # #1058: authored as ParamDefYesNo
     "INTEGER": ("autodesk.spec:spec.int64", "autodesk.spec.aec:integer"),
     "NUMBER": ("autodesk.spec.aec:number",),
     "LENGTH": ("autodesk.spec.aec:length",),
@@ -1151,6 +1152,11 @@ SHARED_DATATYPE_SPECS = {
     "COLOR_TEMPERATURE": ("autodesk.spec.aec.electrical:colorTemperature",),
     "MASS": ("autodesk.spec.aec.structural:mass",),      # the equipment sets' Operating Weight (#630/#658)
 }
+
+
+#: the storage class a shared parameter of a DATATYPE is authored with when it is
+#: not the measurable ``ParamDefValue`` (#1058; the profile path's classes, #866)
+SHARED_DATATYPE_KIND = {"YESNO": "ParamDefYesNo"}
 
 
 def shared_datatype_matches(datatype: str, spec_type_id: str) -> bool:
@@ -1928,12 +1934,14 @@ class FamilyDoc:
         ``ParamElemFamily`` -- or, when ``name`` is a row of the document's
         ``shared_params`` (OUR shared-parameter file), the SHARED
         ``ParamElemExternal`` at that row's GUID (:meth:`add_shared_parameter`).
-        A row the writer cannot author as that parameter -- its DATATYPE is not
+        A YESNO row is authored with the Yes/No storage (#1058).  A row the writer
+        cannot author as that parameter is NOT used -- the parameter is authored
+        LOCAL and a note says why: a DATATYPE this writer does not author shared
+        (NUMBER_OF_POLES, ...: the row is fine), a DATATYPE that is not
         ``spec_type_id`` (a schedule bound to the file's definition would reject
-        any other), or the parameter is per instance / formula-driven, which no
-        shared parameter here is -- is NOT used: the parameter is authored LOCAL
-        and a note says why.  Never a second GUID, never a refused job (#1058,
-        hard rule 1).
+        any other), or a per-instance / formula-driven parameter, which this route
+        does not share (the parameter-profile path does, #866).  Never a second
+        GUID, never a refused job (#1058, hard rule 1).
 
         ``spec_type_id`` = the measurable spec (:data:`SPEC_LENGTH`,
         :data:`SPEC_VOLTAGE`, ...); ``group_type_id`` = the palette group;
@@ -1948,14 +1956,20 @@ class FamilyDoc:
         row = self.shared_params.get(name)
         if row is not None:
             why = None
-            if not shared_datatype_matches(row.datatype, spec_type_id):
+            dt = str(row.datatype).upper()
+            if dt not in SHARED_DATATYPE_SPECS:
+                why = (f"this writer does not author a shared {row.datatype!r} parameter yet "
+                       f"(the row itself is fine)")
+            elif not shared_datatype_matches(row.datatype, spec_type_id):
                 why = (f"the file declares DATATYPE {row.datatype!r} but the family authors it "
                        f"as {spec_type_id!r} (fix the file row to share it)")
             elif is_instance or formula:
-                why = ("it is authored per instance or by formula here, which no shared "
-                       "parameter of this writer is")
+                why = ("it is authored per instance or by formula here, and this route does "
+                       "not share such a parameter (the parameter-profile path does, #866)")
             if why is None:
                 return self.add_shared_parameter(name, row.guid, spec_type_id, group_type_id,
+                                                 kind=SHARED_DATATYPE_KIND.get(dt,
+                                                                               SHARED_PARAM_DEFAULT_KIND),
                                                  description=row.description, default=default)
             self.notes.append(f"shared-parameter file row {name!r} NOT used -- {why}; "
                               f"authored LOCAL, never at a second GUID")

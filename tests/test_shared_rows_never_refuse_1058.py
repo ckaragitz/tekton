@@ -22,12 +22,17 @@ sys.path.insert(0, os.path.join(ROOT, "src"))
 from rvt.famgen import equipment_clearance as EC  # noqa: E402
 from rvt.famgen import factory as F  # noqa: E402
 
-ROWS = (("Show Front Clearance", "YESNO"),          # no spec for YESNO
-        (EC.P_SHOW, "YESNO"),                       # per instance
-        (EC.P_FRONT_ON, "YESNO"),                   # by formula
-        ("Number of Poles", "NUMBER_OF_POLES"),     # no spec for it
-        ("Width", "TEXT"),                          # a disagreeing datatype
+ROWS = (("Show Front Clearance", "YESNO"),          # a type Yes/No: authored SHARED (#1058)
+        (EC.P_SHOW, "YESNO"),                       # per instance: local
+        (EC.P_FRONT_ON, "YESNO"),                   # by formula: local
+        ("Number of Poles", "NUMBER_OF_POLES"),     # not authored shared yet: local
+        ("Width", "TEXT"),                          # a disagreeing datatype: local
         ("Voltage", "ELECTRICAL_POTENTIAL"))        # matches: authored shared
+GUID = {n: f"0000bbbb-1058-4000-8000-00000000000{i}" for i, (n, _dt) in enumerate(ROWS, start=1)}
+LOCAL_WHY = {EC.P_SHOW: "per instance or by formula", EC.P_FRONT_ON: "per instance or by formula",
+             "Number of Poles": "does not author a shared 'NUMBER_OF_POLES' parameter yet "
+                                "(the row itself is fine)",
+             "Width": "the file declares DATATYPE 'TEXT'"}
 
 
 def _file(tmp_path):
@@ -51,13 +56,17 @@ def test_every_constructor_delivers_with_the_rows_it_cannot_share(make, tmp_path
     rep = prod.write(str(tmp_path / "x.rfa"))
     assert rep["validate"]["family_mode"]["n_errors"] == 0
     P = prod.doc.params
-    for name, _dt in ROWS[:5]:
+    seen = 0
+    for name, why in LOCAL_WHY.items():
         if name in P:
+            seen += 1
             assert P[name].class_name == "ParamElemFamily", name
-            assert any(f"row {name!r} NOT used" in n for n in prod.doc.notes), name
-    if "Voltage" in P:
-        assert P["Voltage"].class_name == "ParamElemExternal"
-    assert "Width" in P and P["Width"].class_name == "ParamElemFamily"
+            assert any(f"row {name!r} NOT used" in n and why in n for n in prod.doc.notes), name
+    assert seen >= 2 and "Width" in P
+    for name in ("Show Front Clearance", "Voltage"):
+        if name in P:
+            assert P[name].class_name == "ParamElemExternal", name
+            assert not any(f"row {name!r} NOT used" in n for n in prod.doc.notes), name
 
 
 def test_the_cli_delivers_too(tmp_path):
@@ -98,3 +107,67 @@ def test_a_standard_parameter_with_a_row_it_cannot_use_is_kept_local(tmp_path):
             v = fi.decode(0, e, 102).value
             caps.add(((v.get("m_pParamDef") or {}).get("value") or {}).get("m_caption"))
     assert {"Enclosure Rating", "Service Clearance"} <= caps
+
+
+
+def _params_read_back(path):
+    """{caption: (class, def class, guid or None, current value row)} of the WRITTEN family."""
+    from contextlib import ExitStack
+    from rvt import global_framing as GF
+    from rvt.families import FamilyIndex
+    with ExitStack() as st:
+        GF.enter_own_release(st, path)
+        fi = FamilyIndex(path)
+        recs = fi.unit_records(0).get(102, {})
+        out, fam = {}, None
+        for e, r in recs.items():
+            cls = fi.class_name(r.class_id)
+            if cls.startswith("ParamElem"):
+                v = fi.decode(0, e, 102).value
+                pd = v.get("m_pParamDef") or {}
+                key = (v.get("m_externalParamKey") or {}).get("m_guidValue")
+                out[int(e)] = [cls, pd.get("ptr_class"), key,
+                               (pd.get("value") or {}).get("m_caption")]
+            elif cls == "Family":
+                v = fi.decode(0, e, 102).value
+                if v.get("m_surrogateId") == -1:
+                    fam = v
+    rows = {q["m_paramId"]: q for q in fam["m_familyParams"]["value"]["m_params"]}
+    return {c: (cls, dc, g, rows.get(i)) for i, (cls, dc, g, c) in out.items()}
+
+
+def test_a_yes_no_row_is_authored_shared_with_yes_no_storage(tmp_path):
+    """#1058 DONE (1): YESNO maps to spec.bool -- read back from the written file: the
+    parameter is a ParamElemExternal with the Yes/No storage at the row's GUID and
+    holds the value the family would have given it locally."""
+    sp = _file(tmp_path)
+    shared, local = str(tmp_path / "shared.rfa"), str(tmp_path / "local.rfa")
+    F.make_panelboard(shared_params=sp).write(shared)
+    F.make_panelboard().write(local)
+    got, base = _params_read_back(shared), _params_read_back(local)
+    cls, dc, guid, row = got["Show Front Clearance"]
+    assert (cls, dc) == ("ParamElemExternal", "ParamDefYesNo")
+    assert str(guid).lower() == GUID["Show Front Clearance"]
+    assert row["m_int"] == base["Show Front Clearance"][3]["m_int"]
+    guids = [g for _c, _d, g, _r in got.values() if g]
+    assert len(guids) == len(set(guids))                      # never one GUID twice
+
+
+def test_a_per_instance_or_formula_parameter_keeps_its_binding_local():
+    """The two branches a matching row cannot share on this route, pinned directly: the
+    parameter is LOCAL, keeps its instance binding / formula, and the note says why."""
+    from rvt.famgen import skeleton as SK
+    rows = {n: SK.SharedParamDef(guid=f"0000eeee-1058-4000-8000-00000000000{i}", name=n,
+                                 datatype="LENGTH")
+            for i, n in enumerate(("Inst Len", "Form Len", "Plain Len"), start=1)}
+    doc = SK.new_family_document("generic_model", "Zz Branches", shared_params=rows)
+    inst = doc.add_family_parameter("Inst Len", SK.SPEC_LENGTH, is_instance=True, default=1.0)
+    form = doc.add_family_parameter("Form Len", SK.SPEC_LENGTH, formula="Inst Len * 2")
+    plain = doc.add_family_parameter("Plain Len", SK.SPEC_LENGTH, default=0.5)
+    assert inst.class_name == "ParamElemFamily" and inst.obj["m_instanceParam"] is True
+    assert form.class_name == "ParamElemFamily" and form.refs["formula"] == "Inst Len * 2"
+    assert plain.class_name == "ParamElemExternal"
+    for name in ("Inst Len", "Form Len"):
+        assert any(f"row {name!r} NOT used" in n and "per instance or by formula" in n
+                   and "the parameter-profile path does" in n for n in doc.notes), name
+    assert not any("row 'Plain Len' NOT used" in n for n in doc.notes)
