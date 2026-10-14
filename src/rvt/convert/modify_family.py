@@ -471,8 +471,9 @@ def _leads(key: str, caption: str) -> bool:
     ``No`` in "No. of Poles" / "Circuit No", ``Up`` in "Up Light", ``AT`` in
     "Breaker AT")?  Then even a function word names the parameter (PR #1024
     reviews 4 and 5); an inner word (``of`` in Number of Lamps, ``to`` in
-    Distance to Wall) or a piece of a word (``at`` in Material) does not."""
-    words = re.findall(r"[a-z0-9]+", _split_camel(caption).lower())
+    Distance to Wall) or a piece of a word (``at`` in Material) does not.  A
+    number is not a word here: ``IN`` ends "Rating IN1" (#1025)."""
+    words = [w for w in re.findall(r"[a-z0-9]+", _split_camel(caption).lower()) if not w.isdigit()]
     return (re.sub(r"[\s_-]+", "", caption).lower() == key
             or (bool(words) and key in (words[0], words[-1])))
 
@@ -508,9 +509,11 @@ def _near_caption(inv: FamilyInventory, cap: str) -> bool:
 
 
 def _split_camel(text: str) -> str:
-    """CamelCase into words, an acronym kept apart from the word after it:
-    "PanelName" -> "Panel Name", "ONDelay" -> "ON Delay" (PR #1024 review 6)."""
-    return re.sub(r"(?<=[a-z0-9])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])", " ", text)
+    """CamelCase into words, an acronym kept apart from the word after it and a
+    word from the digits after it: "PanelName" -> "Panel Name", "ONDelay" -> "ON
+    Delay" (PR #1024 review 6), "AT1" -> "AT 1" (#1025)."""
+    return re.sub(r"(?<=[a-z0-9])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])|(?<=[A-Za-z])(?=[0-9])",
+                  " ", text)
 
 
 _RE_SET_DELIM_WORD = re.compile(r"set\s.*?(?:=|:|\sto\s)", re.I | re.S)
