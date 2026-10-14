@@ -656,6 +656,37 @@ stop at READY, as before.
   `DEMO_RUNBOOK.md`, `demo-talk-track.md`). Never force-push `main` or a
   branch someone else has pulled.
 
+**How this repo answers the cross-repo working rules** (steer #1059 — a mapping, not new law;
+where it and the text above differ, the text above wins):
+- **Who you are decides what you may write.** A session a person started and spoke to is a *tech
+  lead*: it owns the written context for its task and leaves it true before it stops (the issue,
+  the record, `docs/PROGRAM.md` if an objective moved, `KNOWLEDGE.md` through a `hot-file` PR).
+  An engineer session, the `worker`, a subagent or a reviewer context was started by another
+  session: its branch, its one record, stop at READY — it never merges, never reorders the queue,
+  never edits a hot file outside its own issue. Cannot tell which you are (a charter pasted as
+  your first message, nobody in the conversation)? You are an engineer; say so in your first
+  message.
+- **One state vocabulary.** *claimed* = assignee + 🔒 comment · *blocked* = `blocked` or a gate
+  label (`needs-viewer`, `needs-revit-desktop`, `owner-machine`) · *owner decision* =
+  `needs-decision` · *ready for review* = PR marked ready with its head SHA reported · *now / next
+  / later* = `P0` / `P1` / `P2`–`P3`. Ticket-level priority is set by the sessions here (steer
+  #805); the owner's priorities are product-level and arrive as steers.
+- **Plans.** The issue is the charter. Anything longer, and anything plan mode writes, is
+  `docs/plans/<issue>-<slug>.md` on the issue's branch, linked from the issue — never a
+  session-local plan (`docs/plans/README.md`).
+- **Archive.** A document that stops being true is `git mv`'d to
+  `docs/archive/<YYYY-MM>/<same path>` in the PR that supersedes it, with one line in
+  `docs/archive/README.md` and its live references fixed. Records in `docs/inbox/` are evidence
+  and stay; anything a test or tool opens is a contract and is never archived.
+- **State carries a date.** What is running is the 📋 board (#56); what we aim at is
+  `docs/PROGRAM.md` "Current objectives", which carries an *as of* date; where things stand is
+  §5. A tech-lead session that finds that date more than 14 days old reconciles the objectives
+  with the board before its own task.
+- **Say what shipped.** End a summary of landed work with whether it is merged (PR, head SHA)
+  and, for a change under `src/`, `tools/`, `skills/` or `plugin/`, whether `tekton-plugin.zip`
+  was rebuilt from that `main`. Nothing here deploys itself: the zip a user holds is as old as
+  its last build.
+
 ## 5. Where things stand (read `KNOWLEDGE.md` for the full arc)
 
 Certified by Autodesk's reader: composed genesis bases for **2026/2025/2024**
