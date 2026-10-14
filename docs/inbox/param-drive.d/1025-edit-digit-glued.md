@@ -18,7 +18,7 @@
   - the `(+N more in route.json / ROUTE.md)` line of `tools/route.py`'s text output.
 
 ## Evidence
-- `tests/test_edit_digit_glued_1025.py`, 21 tests (27 checked cases):
+- `tests/test_edit_digit_glued_1025.py`, 21 tests:
   - 7 `_split_camel` forms;
   - 4 digit-glued captions refused in quotes and applied unquoted;
   - the all-caps boundary;
