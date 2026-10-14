@@ -472,10 +472,19 @@ def _leads(key: str, caption: str) -> bool:
     "Breaker AT")?  Then even a function word names the parameter (PR #1024
     reviews 4 and 5); an inner word (``of`` in Number of Lamps, ``to`` in
     Distance to Wall) or a piece of a word (``at`` in Material) does not.  A
-    number is not a word here: ``IN`` ends "Rating IN1" (#1025)."""
-    words = [w for w in re.findall(r"[a-z0-9]+", _split_camel(caption).lower()) if not w.isdigit()]
+    caption is read two ways (:func:`_caption_readings`): ``IN`` ends "Rating
+    IN1", and ``L1`` starts "L1 Current" (#1025)."""
     return (re.sub(r"[\s_-]+", "", caption).lower() == key
-            or (bool(words) and key in (words[0], words[-1])))
+            or any(w and key in (w[0], w[-1]) for w in _caption_readings(caption)))
+
+
+def _caption_readings(caption: str) -> List[List[str]]:
+    """The caption's words, read two ways: split from its digits with the
+    numbers dropped ("Rating IN1" -> rating, in) and as written ("L1 Current" ->
+    l1, current) -- #1025 and its review, so neither reading loses a word the
+    grammar resolves."""
+    return [[w for w in re.findall(r"[a-z0-9]+", _split_camel(caption).lower()) if not w.isdigit()],
+            re.findall(r"[a-z0-9]+", _split_camel(caption, digits=False).lower())]
 
 
 #: words of value prose that ``param_by_caption``'s unique-substring rule would
@@ -499,7 +508,7 @@ def _near_caption(inv: FamilyInventory, cap: str) -> bool:
     key = re.sub(r"[\s_-]+", "", cap).lower()
     if len(key) < 4:
         return False
-    words = [set(re.findall(r"[a-z0-9]+", _split_camel(p["caption"]).lower())) for p in inv.params]
+    words = [set().union(*_caption_readings(p["caption"])) for p in inv.params]
     if sum(key in w for w in words) > 1:
         return True
     if len(key) < 5:
@@ -508,12 +517,12 @@ def _near_caption(inv: FamilyInventory, cap: str) -> bool:
     return any(difflib.SequenceMatcher(None, key, n).ratio() >= 0.8 for n in norm)
 
 
-def _split_camel(text: str) -> str:
-    """CamelCase into words, an acronym kept apart from the word after it and a
-    word from the digits after it: "PanelName" -> "Panel Name", "ONDelay" -> "ON
-    Delay" (PR #1024 review 6), "AT1" -> "AT 1" (#1025)."""
-    return re.sub(r"(?<=[a-z0-9])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])|(?<=[A-Za-z])(?=[0-9])",
-                  " ", text)
+def _split_camel(text: str, digits: bool = True) -> str:
+    """CamelCase into words, an acronym kept apart from the word after it and
+    (``digits``) a word from the digits after it: "PanelName" -> "Panel Name",
+    "ONDelay" -> "ON Delay" (PR #1024 review 6), "AT1" -> "AT 1" (#1025)."""
+    pat = r"(?<=[a-z0-9])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])"
+    return re.sub(pat + r"|(?<=[A-Za-z])(?=[0-9])" if digits else pat, " ", text)
 
 
 _RE_SET_DELIM_WORD = re.compile(r"set\s.*?(?:=|:|\sto\s)", re.I | re.S)
