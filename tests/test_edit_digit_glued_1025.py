@@ -59,8 +59,31 @@ def test_a_digit_glued_caption_word_inside_quotes_is_a_further_edit(caps, key):
     assert [o["caption"] for o in ops] == ["Mark", caps[1]]
 
 
+@pytest.mark.parametrize("caps, text", [
+    # PR #1074 review: a digit-bearing key several captions share, which old and main
+    # refused, must not be stored as text -- the caption is also read as written
+    (("Mark", "L1 Current", "L1 Voltage"), 'set Mark = "see E-101; set L1 30 A"'),
+    (("Mark", "A1 Width", "A1 Depth"), "set Mark = 'see note; set A1 5 mm'"),
+    (("Mark", "CB1 Rating", "CB1 Frame"), 'set Mark = "spare then set CB1 225 A"'),
+    (("Mark", "Lamp1 Type", "Lamp1 Watts"), "set Mark = 'x; set Lamp1 LED'"),
+    (("Mark", "Upstream Pipe2 Diameter", "Downstream Pipe2 Diameter"), "set Mark = 'x; set Pipe2 4 in'"),
+])
+def test_a_shared_digit_bearing_key_inside_quotes_is_a_further_edit(caps, text):
+    with pytest.raises(MF.FamilyEditError, match="runs across a further edit"):
+        MF.parse_family_edit(text, _inv(*caps))
+
+
+def test_the_trade_off_prose_that_starts_a_digit_caption_is_refused():
+    # "in" IS the word that starts "IN1": refused (recoverable -- close the quote or
+    # use a JSON op), as main refuses it with a spaced "IN 1" caption
+    with pytest.raises(MF.FamilyEditError, match="runs across a further edit"):
+        MF.parse_family_edit("set Mark = 'PVC; set in concrete'", _inv("Mark", "IN1"))
+
+
 def test_the_all_caps_glued_boundary_stays_text():
-    # 'ON' inside "ONDELAY" is a piece of a word, like 'NO' inside "NOMINAL"
+    # 'ON' inside "ONDELAY" cannot be told from 'NO' inside "NOMINAL" without a
+    # dictionary: known residue (the old split wrote ONDELAY here, the meant
+    # parameter; it wrote NOMINAL for 'no', a mis-target) -- tracked in the record
     ops = MF.parse_family_edit("set Mark = 'see note; set ON 5 s'", _inv("Mark", "ONDELAY"))["ops"]
     assert [o["value"] for o in ops] == ["see note; set ON 5 s"]
 
