@@ -925,8 +925,8 @@ def test_shared_params_flag_makes_the_eleven_contract_params_shared_rest_local()
     prod = F.make_panelboard(shared_params=twin)
     assert prod.shared_parameters()["PanelName"] == CONTRACT_GUIDS["PanelName"]
     assert "Width" not in prod.shared_parameters()
-    assert any("row 'Width' NOT used -- its GUID is already used by row 'PanelName'" in n
-               for n in prod.doc.notes)
+    assert any(f"row 'Width' NOT used (GUID {CONTRACT_GUIDS['PanelName']!r}) -- its GUID "
+               f"is already used by row 'PanelName'" in n for n in prod.doc.notes)
 
 
 @needs_schema
