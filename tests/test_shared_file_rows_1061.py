@@ -1,9 +1,11 @@
 """#1061: a shared-parameter file with a repeated name, a malformed GUID, a row
 before its header, or one GUID under two names still delivers the family.
 
-The row is NOT used and a note names it; the first row of a name -- and the first
-name of a GUID -- is the one used, so a family never carries one GUID twice.
-Through the reader, a constructor and the CLI.  Synthetic rows only.
+Every row is taken in file order: one that cannot be used is NOT used and a note
+names it; the first name of a GUID keeps it, so a family never carries one GUID
+twice; a later row of a name with its own GUID is kept as that name's alternative,
+and a parameter takes the first row of its name whose DATATYPE fits.  Through the
+reader, a constructor and the CLI.  Synthetic rows only.
 """
 from __future__ import annotations
 
@@ -197,3 +199,40 @@ def test_an_alternatives_guid_is_never_reused_by_another_name(tmp_path):
                in n for n in t.notes)
     sp = F.make_panelboard(shared_params=path).shared_parameters()
     assert list(sp.values()).count(G2) == 1
+
+
+def test_a_parameter_not_shared_gets_no_swap_note(tmp_path):
+    """A per-instance switch with a TEXT row, then a YESNO row: this route never
+    shares it, so no note may say another row "is the one shared" (#1072 review
+    round 3)."""
+    from rvt.famgen import equipment_clearance as EC
+    path = _file(tmp_path, _row(G1, EC.P_SHOW, "TEXT") + _row(G2, EC.P_SHOW, "YESNO"))
+    prod = F.make_panelboard(shared_params=path)
+    assert EC.P_SHOW not in prod.shared_parameters()
+    notes = [n for n in prod.doc.notes if f"row {EC.P_SHOW!r}" in n]
+    assert not any("is the one shared" in n for n in notes), notes
+    assert any("NOT used -- it is authored per instance or by formula" in n for n in notes)
+
+
+def test_a_name_takes_its_first_fitting_row_of_several(tmp_path):
+    G4 = "0000dddd-1061-4000-8000-000000000004"
+    path = _file(tmp_path, _row(G1, "Voltage", "TEXT") + _row(G2, "Voltage", "ELECTRICAL_POTENTIAL")
+                 + _row(G4, "Voltage", "ELECTRICAL_POTENTIAL"))
+    prod = F.make_panelboard(shared_params=path)
+    assert prod.shared_parameters()["Voltage"] == G2
+    assert sum("is the one shared" in n for n in prod.doc.notes) == 1
+
+
+def test_a_table_passed_in_is_copied_with_its_alternatives(tmp_path):
+    t = SK.read_shared_parameter_file(
+        _file(tmp_path, _row(G1, "Voltage", "TEXT") + _row(G2, "Voltage", "ELECTRICAL_POTENTIAL")))
+    for _ in range(2):                                   # the caller's table is never used up
+        assert F.make_panelboard(shared_params=t).shared_parameters()["Voltage"] == G2
+    assert t["Voltage"].guid == G1 and [d.guid for d in t.alternates["Voltage"]] == [G2]
+
+
+def test_a_table_built_by_hand_is_checked_like_any_rows():
+    t = SK.SharedParamTable({"PanelName": SK.SharedParamDef(guid="{" + G1.upper() + "}",
+                                                           name="PanelName", datatype="TEXT")})
+    prod = F.make_panelboard(shared_params=t)                # never refused (hard rule 1)
+    assert prod.shared_parameters() == {"PanelName": G1}

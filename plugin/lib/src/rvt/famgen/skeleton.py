@@ -1179,23 +1179,26 @@ def shared_datatype_matches(datatype: str, spec_type_id: str) -> bool:
 
 
 class SharedParamTable(dict):
-    """``{name: SharedParamDef}`` -- each name's FIRST usable row -- plus ``notes``
-    (the rows of a shared-parameter file that were not used, or were kept as a
-    name's alternative, each named with why) and ``alternates``: the later usable
-    rows of a name.  Revit's own files may carry one name under several GUIDs;
-    :meth:`fit` lets a parameter take the row whose DATATYPE fits it (#1061)."""
+    """``{name: SharedParamDef}`` -- each name's row: its first usable row, until
+    :meth:`fit` puts a better one in its place -- plus ``notes`` (the rows of a
+    shared-parameter file that were not used, or were kept as a name's
+    alternative, each named with why) and ``alternates``: the name's other usable
+    rows.  Revit's own files may carry one name under several GUIDs; :meth:`fit`
+    lets a parameter take the row whose DATATYPE fits it (#1061)."""
 
     def __init__(self, *a, notes: Optional[List[str]] = None, **kw):
         super().__init__(*a, **kw)
         self.notes: List[str] = list(notes or [])
         self.alternates: Dict[str, List[SharedParamDef]] = {}
+        #: name -> the row :meth:`fit` set aside for a fitting alternative: the
+        #: one that SHARES the parameter says so (:meth:`take_swap`), nobody else
+        self.swapped: Dict[str, SharedParamDef] = {}
 
-    def fit(self, name: str, spec_type_id: str,
-            notes: Optional[List[str]] = None) -> Optional[SharedParamDef]:
-        """``name``'s row, made the first of its name whose DATATYPE fits
-        ``spec_type_id`` when the first does not and an alternative does (the
-        swap is said in ``notes``, a family's, or the table's own); else the
-        first row as it is."""
+    def fit(self, name: str, spec_type_id: str) -> Optional[SharedParamDef]:
+        """``name``'s row, replaced by the FIRST of its alternatives whose
+        DATATYPE fits ``spec_type_id`` when the row itself does not (the row set
+        aside is kept for :meth:`take_swap`); else the row as it is.  Says
+        nothing: whether the row is then shared is the caller's to decide."""
         row = self.get(name)
         if row is None or shared_datatype_matches(row.datatype, spec_type_id):
             return row
@@ -1204,12 +1207,20 @@ class SharedParamTable(dict):
             if shared_datatype_matches(alt.datatype, spec_type_id):
                 self[name] = alt
                 self.alternates[name] = [row] + alts[:i] + alts[i + 1:]
-                (self.notes if notes is None else notes).append(
-                    f"shared-parameter row {name!r}: the row of DATATYPE {alt.datatype!r} "
-                    f"(GUID {alt.guid}) is the one used -- it fits the parameter, the first "
-                    f"row of the name (DATATYPE {row.datatype!r}) does not")
+                self.swapped.setdefault(name, row)
                 return alt
         return row
+
+    def take_swap(self, name: str) -> Optional[str]:
+        """The note for a parameter that IS shared at a row :meth:`fit` chose over
+        the name's first row (None when it chose none) -- said once."""
+        first = self.swapped.pop(name, None)
+        row = self.get(name)
+        if first is None or row is None:
+            return None
+        return (f"shared-parameter row {name!r}: the row of DATATYPE {row.datatype!r} "
+                f"(GUID {row.guid}) is the one shared -- the first row of the name (DATATYPE "
+                f"{first.datatype!r}) could not be shared as this parameter")
 
 
 class _RowCheck:
@@ -1227,7 +1238,9 @@ class _RowCheck:
         self.owner: Dict[str, str] = {}
         self.refuse = refuse
 
-    def take(self, where: Any, d: Any) -> None:
+    def take(self, where: Any, d: Any, *, alternate: bool = False) -> None:
+        """``alternate``: a row a checked table already kept as its name's
+        alternative -- kept so again, without a second note."""
         name = str(getattr(d, "name", "") or "")
         if not name.strip():
             self.refuse(where, "PARAM row with no NAME", "a row with no NAME is NOT used")
@@ -1255,6 +1268,10 @@ class _RowCheck:
                                      group=getattr(d, "group", ""),
                                      description=getattr(d, "description", ""),
                                      visible=getattr(d, "visible", True)))
+        if name in self.table and alternate:
+            self.owner[guid] = name
+            self.table.alternates.setdefault(name, []).append(d)
+            return
         if name in self.table:
             self.refuse(where, f"duplicate PARAM name {name!r}",
                         f"row {name!r} repeats a name already read: kept as that name's "
@@ -1371,10 +1388,6 @@ def shared_param_table(shared_params: SharedParamsArg) -> Dict[str, SharedParamD
         return {}
     if isinstance(shared_params, str):
         return read_shared_parameter_file(shared_params)
-    if isinstance(shared_params, SharedParamTable):    # already checked: the doc's own copy
-        t = SharedParamTable(shared_params, notes=list(shared_params.notes))
-        t.alternates = {k: list(v) for k, v in shared_params.alternates.items()}
-        return t
     notes = list(getattr(shared_params, "notes", None) or [])
 
     def refuse(_where, _msg: str, note: str) -> None:
@@ -1390,6 +1403,11 @@ def shared_param_table(shared_params: SharedParamsArg) -> Dict[str, SharedParamD
                                description=getattr(d, "description", ""),
                                visible=getattr(d, "visible", True))
         check.take(None, d)
+    # a table passed in keeps its alternatives -- checked like any row (a table
+    # built by hand is input too), copied, never shared with the caller's table
+    for _name, alts in (getattr(shared_params, "alternates", None) or {}).items():
+        for d in alts:
+            check.take(None, d, alternate=True)
     check.table.notes = notes
     return check.table
 
@@ -2095,10 +2113,13 @@ class FamilyDoc:
         value (:mod:`rvt.famgen.formula`, #850); a formula that cannot be stored
         faithfully is left out and SAID in ``notes`` (the family is still built).
         """
-        # the row of the name whose DATATYPE fits, where its file has several (#1061)
-        fit = getattr(self.shared_params, "fit", None)
-        row = (fit(name, spec_type_id, self.notes) if fit is not None
-               else self.shared_params.get(name))
+        table = self.shared_params
+        row = table.get(name)
+        if row is not None and not (is_instance or formula):
+            # the row of the name whose DATATYPE fits, where its file has several
+            # (#1061) -- never for a parameter this route does not share anyway
+            fit = getattr(table, "fit", None)
+            row = fit(name, spec_type_id) if fit is not None else row
         if row is not None:
             why = None
             dt = str(row.datatype).strip().upper()
@@ -2119,6 +2140,9 @@ class FamilyDoc:
                            "(fix the file row to share it)" if spec in SHAREABLE_SPECS else
                            "(and no DATATYPE this writer shares fits that spec yet)"))
             if why is None:
+                swap = getattr(table, "take_swap", lambda _n: None)(name)
+                if swap:
+                    self.notes.append(swap)
                 return self.add_shared_parameter(name, row.guid, spec_type_id, group_type_id,
                                                  kind=SHARED_DATATYPE_KIND.get(dt,
                                                                                SHARED_PARAM_DEFAULT_KIND),

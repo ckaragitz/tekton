@@ -609,10 +609,10 @@ def _keep_local(doc) -> None:
     if not table:
         return
     local = [n for n in _local_only() if n in table]
-    fit = getattr(table, "fit", None)
+    fit = getattr(table, "fit", None)       # a fitting row of the name, if it has several
     other = [n for n, spec in _authored_specs().items()
-             if n in table and not SK.shared_datatype_matches(
-                 (fit(n, spec, doc.notes) if fit else table[n]).datatype, spec)]
+             if n in table and n not in local and not SK.shared_datatype_matches(
+                 (fit(n, spec) if fit else table[n]).datatype, spec)]
     for n in local + other:
         table.pop(n)
     if local:

@@ -24,20 +24,25 @@ stopping at a header-less row after a repeated name.
 
 **A second row of a name, with its own GUID, is kept as that name's alternative.** Revit's own
 files may carry one name under several GUIDs, and `shared_params_from_rfa` writes them sorted by
-GUID, so "the first row" is arbitrary. `SharedParamTable.fit` makes a parameter take the first row
-of its name whose DATATYPE fits it, said in a note. `add_family_parameter` and panel_can's
-`_keep_local` call it. Before, a name whose first row had another DATATYPE stayed local with a note
-that contradicted itself (#1072's second review).
+GUID, so "the first row" is arbitrary.
+- `SharedParamTable.fit` puts the first of a name's rows whose DATATYPE fits in its place.
+  `add_family_parameter` and panel_can's `_keep_local` call it, never for a parameter this route
+  does not share (per instance, by formula, local-only).
+- Only the code that then **shares** the row says so (`take_swap`), once.
+- Before, a name whose first row had another DATATYPE stayed local with a note that contradicted
+  itself (#1072's second review). Then the swap note was written even for a per-instance
+  parameter, which was not shared (third review).
 
 GUIDs are canonicalised (case, braces). Parsed rows passed in (`shared_param_table`) take the same
 checks and are named by their KEY: an invalid or braced GUID used to reach the encoder and refuse
-the job. A table passed back in is copied with its notes and alternatives.
+the job. A table passed back in, or built by hand, is checked the same way: copied with its notes
+and alternatives, never sharing them with the caller's table.
 
 `SharedParamTable` is a `dict` with `.notes`, and `new_family_document` copies the notes onto the
 family's notes. `strict=True` keeps the old `ValueError` for tools that audit a file.
 
 ## Evidence
-- **`tests/test_shared_file_rows_1061.py`: 15 passed.** Each of the row problems is checked:
+- **`tests/test_shared_file_rows_1061.py`: 19 passed.** Each of the row problems is checked:
   - through the reader (the notes name each one);
   - in `strict=True`, each on its own file, refused with its own reason (repeated name, malformed
     GUID, one GUID under two names);
@@ -63,9 +68,17 @@ family's notes. `strict=True` keeps the old `ValueError` for tools that audit a 
   - an alternative's GUID is never reused by another name;
   - parsed rows are named by their key (a renamed dataclass, an object with no `.name`), and a name
     of only spaces is not used.
+- **Pinned since the third review:**
+  - a per-instance switch whose second row is YESNO gets no swap note, and is not shared;
+  - three rows of one name: the first fitting one is used, said once;
+  - a table passed in twice is never used up;
+  - a hand-built table with a braced GUID is canonicalised and shared.
 - **`test_shared_params_from_rfa_866`** reads our own written TXT with `strict=True`, since it is an
   audit.
 - **Mutation.** Each of these single-line mutants fails the files:
+  - (third round) the last fitting alternative taken; a passed-in table's alternatives dropped;
+    the swap note dropped. The one survivor, the note written before the share check, is
+    equivalent: `fit` only swaps to a row that then shares;
   - (second round) `fit` bypassed in `add_family_parameter` or in panel_can; an alternative's GUID
     not reserved; a name of spaces kept; rows not named by their key; the rows taken after the read
     instead of during it;
@@ -91,6 +104,7 @@ family's notes. `strict=True` keeps the old `ValueError` for tools that audit a 
   - `tools/shared_params_from_rfa.py` (comments only);
   - `tests/test_shared_file_rows_1061.py` (new);
   - `tests/test_famgen_factory.py`, `tests/test_shared_params_from_rfa_866.py` (strict audit read);
+  - `tools/shared_params_from_rfa.py` (comments only: how our reader treats a name under two GUIDs);
   - `tests/test_shared_rows_never_refuse_1058.py` (#1068's review nits);
   - `tests/ci_shard.d/1061-shared-file-rows.txt`;
   - this record;
