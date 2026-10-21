@@ -588,6 +588,41 @@ def test_a_lap_too_short_to_build_is_no_lap_in_the_file(tmp_path):
 
 
 def test_the_room_inside_is_measured_with_the_wall_as_built():
-    # 0.06 in walls of 0.01 in leave room; walls built at 1/32 in do not
+    # on a 0.12 in box, walls of 0.01 in would leave room (4 x 0.01 < 0.12); walls
+    # built at 1/32 in do not (4 x 1/32 = 0.125)
     with pytest.raises(PC.PanelCanError, match="nothing inside"):
         PC.make_panel_can(width_in=0.12, height_in=20, depth_in=6, box_thickness_in=0.01)
+
+
+
+# -- #1067: #1063's low findings --------------------------------------------------
+
+def test_a_negative_zero_size_is_written_as_zero(tmp_path):
+    kw = {"surface": False, "mounting_height_in": 24}
+    a, b = str(tmp_path / "neg.rfa"), str(tmp_path / "pos.rfa")
+    neg = PC.make_panel_can(flush_lap_in=-0.0, **kw)
+    neg.write(a)
+    PC.make_panel_can(flush_lap_in=0.0, **kw).write(b)
+    assert not any("-0 in" in n for n in neg.notes + neg.doc.notes)
+    ra, rb = readback(a), readback(b)
+    for cap in (PC.P_TRIM_W, PC.P_TRIM_H, PC.P_TRIM_Z):
+        assert ra[cap]["formula"] == rb[cap]["formula"], cap      # no negation around a 0
+
+
+def test_a_lap_of_exactly_one_snap_is_a_lap(tmp_path):
+    path = str(tmp_path / "lap.rfa")
+    PC.make_panel_can(flush_lap_in=PC.FLOOR_SNAP_IN, surface=False, mounting_height_in=24).write(path)
+    got = readback(path)
+    assert got[PC.P_TRIM_W]["value"] == pytest.approx(got[PC.P_WIDTH]["value"] + 2 * PC.FLOOR_SNAP_IN / 12)
+
+
+@pytest.mark.parametrize("kw,said", [
+    ({"box_thickness_in": 0.0312499999, "mounting_height_in": 24},
+     "box thickness 0.0312499999 in (built 0.03125 in)"),
+    ({"flush_lap_in": 0.0312499999, "surface": False, "mounting_height_in": 24},
+     "flush lap 0.0312499999 in (built 0 in)")])
+def test_a_given_size_never_prints_like_the_built_one(kw, said):
+    prod = PC.make_panel_can(**kw)
+    assert said in [n for n in prod.notes if n.startswith("GIVEN")][0]
+    assert any("0.0312499999 in" in n and "which Revit cannot dimension" in n
+               for n in prod.doc.notes)
