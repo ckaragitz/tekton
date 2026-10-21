@@ -17,8 +17,10 @@ release, ``rvt.global_framing.enter_own_release``), and written as:
 DATATYPE is never guessed: it comes from the definition class or the measurable
 spec; two browse-edit classes are mapped by inference (counted in the summary); a
 parameter with no known token stays in the profile and is left OUT of the TXT,
-named.  A name carried by two GUIDs is legal in Revit's file but refused by OUR
-reader (``read_shared_parameter_file``) -- the summary counts them.
+named.  A name carried by two GUIDs is legal in Revit's file; OUR reader
+(``read_shared_parameter_file``) keeps the later rows as that name's alternatives, and
+a parameter takes the first row of its name whose DATATYPE fits (#1061) -- the summary
+counts them.
 
 WHY (steer #865): the owner works with a commercial content library whose families
 all run on one master shared-parameter set; generated families that carry the same
@@ -382,8 +384,9 @@ def summary_of(profile: Dict[str, Any], errors: List[str]) -> Dict[str, Any]:
             "variants": len(profile["variants"]),
             "datatypes_inferred": sum(1 for p in params if p["datatype_basis"] == "inferred"),
             "txt_omitted": txt_omitted(profile),
-            # names shared by two GUIDs: legal in Revit's file, but OUR reader
-            # (read_shared_parameter_file) refuses such a file -- key by GUID instead
+            # names shared by two GUIDs: legal in Revit's file; OUR reader keeps the
+            # later rows as the name's alternatives and a parameter takes the first
+            # whose DATATYPE fits (#1061) -- key by GUID for anything else
             "duplicate_names": sum(1 for n in names.values() if n > 1),
             "family_rows": len(rows),
             "rows_not_family_parameters": sum(1 for q in rows if q["instance"] is None),

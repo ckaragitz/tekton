@@ -71,7 +71,7 @@ def instance_device(tmp_path_factory):
 
 def _rows(path):
     return {k: (v.guid, v.name, v.datatype.upper(), v.description, v.visible)
-            for k, v in read_shared_parameter_file(path).items()}
+            for k, v in read_shared_parameter_file(path, strict=True).items()}   # an audit
 
 
 # -- datatype: from the class, the spec, a labelled inference -- never a guess ------
