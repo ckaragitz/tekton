@@ -1216,7 +1216,7 @@ class SharedParamTable(dict):
         the name's first row (None when it chose none) -- said once."""
         first = self.swapped.pop(name, None)
         row = self.get(name)
-        if first is None or row is None:
+        if first is None or row is None or first is row:     # never swapped, or back again
             return None
         return (f"shared-parameter row {name!r}: the row of DATATYPE {row.datatype!r} "
                 f"(GUID {row.guid}) is the one shared -- the first row of the name (DATATYPE "
@@ -1242,39 +1242,41 @@ class _RowCheck:
         """``alternate``: a row a checked table already kept as its name's
         alternative -- kept so again, without a second note."""
         name = str(getattr(d, "name", "") or "")
+        raw = str(getattr(d, "guid", "") or "")
+        # a file's note carries its line; a row given in code, its GUID as given
+        tag = f" (GUID {raw!r})" if where is None else ""
         if not name.strip():
             self.refuse(where, "PARAM row with no NAME", "a row with no NAME is NOT used")
             return
         try:
-            guid = str(uuid.UUID(str(getattr(d, "guid", "") or "")))
+            guid = str(uuid.UUID(raw))
         except ValueError:
             self.refuse(where, f"PARAM {name!r} has no valid GUID",
-                        f"row {name!r} NOT used -- it has no valid GUID")
+                        f"row {name!r} NOT used{tag} -- it has no valid GUID")
             return
         if guid in self.owner and self.owner[guid] == name:
             self.refuse(where, f"duplicate PARAM name {name!r} (the same GUID again)",
-                        f"row {name!r} NOT used -- it repeats an earlier row (the same name "
+                        f"row {name!r} NOT used{tag} -- it repeats an earlier row (the same name "
                         f"and GUID)")
             return
         if guid in self.owner:
             self.refuse(where, f"GUID {guid} under two rows ({self.owner[guid]!r}, {name!r})",
-                        f"row {name!r} NOT used -- its GUID is already used by row "
+                        f"row {name!r} NOT used{tag} -- its GUID is already used by row "
                         f"{self.owner[guid]!r}, and one family never carries a GUID twice")
             return
-        if guid != getattr(d, "guid", None) or not dataclasses.is_dataclass(d):
-            d = (dataclasses.replace(d, guid=guid) if dataclasses.is_dataclass(d)
-                 else SharedParamDef(guid=guid, name=name,
-                                     datatype=getattr(d, "datatype", ""),
-                                     group=getattr(d, "group", ""),
-                                     description=getattr(d, "description", ""),
-                                     visible=getattr(d, "visible", True)))
+        if not isinstance(d, SharedParamDef) or guid != d.guid:
+            # every row the table keeps is a SharedParamDef with its canonical GUID
+            d = SharedParamDef(guid=guid, name=name, datatype=getattr(d, "datatype", ""),
+                               group=getattr(d, "group", ""),
+                               description=getattr(d, "description", ""),
+                               visible=getattr(d, "visible", True))
         if name in self.table and alternate:
             self.owner[guid] = name
             self.table.alternates.setdefault(name, []).append(d)
             return
         if name in self.table:
             self.refuse(where, f"duplicate PARAM name {name!r}",
-                        f"row {name!r} repeats a name already read: kept as that name's "
+                        f"row {name!r}{tag} repeats a name already read: kept as that name's "
                         f"alternative -- a parameter takes the first row of its name whose "
                         f"DATATYPE fits it")
             self.owner[guid] = name
@@ -1394,9 +1396,9 @@ def shared_param_table(shared_params: SharedParamsArg) -> Dict[str, SharedParamD
         notes.append(f"shared-parameter rows given: {note}")
     check = _RowCheck(refuse)
     for key, d in dict(shared_params).items():       # the KEY names the row
-        if dataclasses.is_dataclass(d):
-            d = d if getattr(d, "name", None) == key else dataclasses.replace(d, name=key)
-        else:
+        if isinstance(d, SharedParamDef):
+            d = d if d.name == key else dataclasses.replace(d, name=key)
+        else:                                          # any other row object: its fields
             d = SharedParamDef(guid=getattr(d, "guid", ""), name=key,
                                datatype=getattr(d, "datatype", ""),
                                group=getattr(d, "group", ""),
@@ -2147,6 +2149,12 @@ class FamilyDoc:
                                                  kind=SHARED_DATATYPE_KIND.get(dt,
                                                                                SHARED_PARAM_DEFAULT_KIND),
                                                  description=row.description, default=default)
+            # the name's other rows were tried only where the DATATYPE was the question
+            others = ([] if is_instance or formula else
+                      [a.datatype for a in (getattr(table, "alternates", {}) or {}).get(name, [])])
+            if others:
+                why += (f"; nor could the name's other row(s) of DATATYPE "
+                        f"{', '.join(repr(o) for o in others)}")
             self.notes.append(f"shared-parameter file row {name!r} NOT used -- {why}; "
                               f"authored LOCAL, never at a second GUID")
         pe = new_family_parameter(_alloc(self.ids), self.self_family.elem_id, name,

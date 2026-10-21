@@ -102,7 +102,7 @@ def test_parsed_rows_are_canonicalised_and_checked_like_a_file():
     t = SK.shared_param_table(rows)
     assert {k: v.guid for k, v in t.items()} == {"PanelName": G1}
     notes = "\n".join(t.notes)
-    assert "row 'Voltage' NOT used -- it has no valid GUID" in notes
+    assert "row 'Voltage' NOT used (GUID 'not-a-guid') -- it has no valid GUID" in notes
     assert "a row with no NAME is NOT used" in notes
     prod = F.make_panelboard(shared_params=rows)            # never refused (hard rule 1)
     assert prod.shared_parameters() == {"PanelName": G1}
@@ -212,6 +212,17 @@ def test_a_parameter_not_shared_gets_no_swap_note(tmp_path):
     notes = [n for n in prod.doc.notes if f"row {EC.P_SHOW!r}" in n]
     assert not any("is the one shared" in n for n in notes), notes
     assert any("NOT used -- it is authored per instance or by formula" in n for n in notes)
+    assert not any("nor could" in n for n in notes), notes   # the other row was never tried
+
+
+def test_a_refused_row_names_the_rows_also_tried(tmp_path):
+    """No row of the name fits: the note says which other DATATYPEs were tried too."""
+    path = _file(tmp_path, _row(G1, "Voltage", "TEXT") + _row(G2, "Voltage", "LENGTH"))
+    prod = F.make_panelboard(shared_params=path)
+    assert "Voltage" not in prod.shared_parameters()
+    assert any("row 'Voltage' NOT used -- the file declares DATATYPE 'TEXT'" in n
+               and "nor could the name's other row(s) of DATATYPE 'LENGTH'" in n
+               for n in prod.doc.notes), prod.doc.notes
 
 
 def test_a_name_takes_its_first_fitting_row_of_several(tmp_path):
@@ -236,3 +247,58 @@ def test_a_table_built_by_hand_is_checked_like_any_rows():
                                                            name="PanelName", datatype="TEXT")})
     prod = F.make_panelboard(shared_params=t)                # never refused (hard rule 1)
     assert prod.shared_parameters() == {"PanelName": G1}
+
+
+def test_two_names_alternatives_never_share_a_guid():
+    """An alternative reserves its GUID like any row: a second name's alternative
+    at the same GUID is NOT used (#1072 review round 4)."""
+    G4 = "0000dddd-1061-4000-8000-000000000004"
+    t = SK.SharedParamTable({"A": SK.SharedParamDef(guid=G1, name="A", datatype="TEXT"),
+                             "B": SK.SharedParamDef(guid=G2, name="B", datatype="TEXT")})
+    t.alternates = {"A": [SK.SharedParamDef(guid=G3, name="A", datatype="LENGTH")],
+                    "B": [SK.SharedParamDef(guid=G3, name="B", datatype="LENGTH"),
+                          SK.SharedParamDef(guid=G4, name="B", datatype="LENGTH")]}
+    c = SK.shared_param_table(t)
+    assert [d.guid for d in c.alternates["A"]] == [G3]
+    assert [d.guid for d in c.alternates["B"]] == [G4]
+    assert any(f"row 'B' NOT used (GUID {G3!r}) -- its GUID is already used by row 'A'" in n
+               for n in c.notes)
+
+
+def test_a_checked_table_is_never_noted_twice(tmp_path):
+    """Passing a checked table back in keeps its alternatives without a second
+    "repeats a name" note."""
+    t = SK.read_shared_parameter_file(
+        _file(tmp_path, _row(G1, "Voltage", "TEXT") + _row(G2, "Voltage", "ELECTRICAL_POTENTIAL")))
+    c = SK.shared_param_table(SK.shared_param_table(t))
+    assert c.notes == t.notes and sum("repeats a name" in n for n in c.notes) == 1
+    assert [d.guid for d in c.alternates["Voltage"]] == [G2]
+
+
+def test_any_row_object_becomes_a_shared_param_def():
+    """A row of another dataclass (no ``name`` field) is named by its key and
+    kept as a SharedParamDef -- never handed on as the caller's own object."""
+    import dataclasses
+
+    @dataclasses.dataclass
+    class Row:
+        guid: str
+        datatype: str
+
+    t = SK.shared_param_table({"Voltage": Row(guid=G2.upper(), datatype="ELECTRICAL_POTENTIAL")})
+    assert isinstance(t["Voltage"], SK.SharedParamDef)
+    assert (t["Voltage"].name, t["Voltage"].guid) == ("Voltage", G2)
+    assert F.make_panelboard(shared_params=t).shared_parameters() == {"Voltage": G2}
+
+
+def test_a_swap_undone_is_never_reported():
+    """``fit`` may swap a name to its alternative and back again: the row shared
+    is then the first row, and no note says another one is."""
+    t = SK.SharedParamTable({"X": SK.SharedParamDef(guid=G1, name="X", datatype="TEXT")})
+    t.alternates = {"X": [SK.SharedParamDef(guid=G2, name="X", datatype="LENGTH")]}
+    assert t.fit("X", "autodesk.spec.aec:length").guid == G2
+    assert t.fit("X", "autodesk.spec:spec.string").guid == G1
+    assert t.take_swap("X") is None and t.take_swap("X") is None
+    assert t.fit("X", "autodesk.spec.aec:length").guid == G2
+    assert "(GUID " + G2 + ") is the one shared" in t.take_swap("X")
+    assert t.take_swap("X") is None                     # said once

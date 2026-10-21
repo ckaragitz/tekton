@@ -101,7 +101,7 @@ family's notes. `strict=True` keeps the old `ValueError` for tools that audit a 
 ## BRANCH STATE
 - **Files:**
   - `src/rvt/famgen/skeleton.py`;
-  - `tools/shared_params_from_rfa.py` (comments only);
+  - `src/rvt/famgen/panel_can.py` (its local-parameter pick asks the table which row fits);
   - `tests/test_shared_file_rows_1061.py` (new);
   - `tests/test_famgen_factory.py`, `tests/test_shared_params_from_rfa_866.py` (strict audit read);
   - `tools/shared_params_from_rfa.py` (comments only: how our reader treats a name under two GUIDs);
