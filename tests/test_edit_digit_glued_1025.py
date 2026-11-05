@@ -67,6 +67,8 @@ def test_a_digit_glued_caption_word_inside_quotes_is_a_further_edit(caps, key):
     (("Mark", "CB1 Rating", "CB1 Frame"), 'set Mark = "spare then set CB1 225 A"'),
     (("Mark", "Lamp1 Type", "Lamp1 Watts"), "set Mark = 'x; set Lamp1 LED'"),
     (("Mark", "Upstream Pipe2 Diameter", "Downstream Pipe2 Diameter"), "set Mark = 'x; set Pipe2 4 in'"),
+    # review round 2: the SPLIT reading's shared word ("pipe") counts too
+    (("Mark", "Upstream Pipe2 Diameter", "Downstream Pipe2 Diameter"), "set Mark = 'x; set Pipe 4 in'"),
 ])
 def test_a_shared_digit_bearing_key_inside_quotes_is_a_further_edit(caps, text):
     with pytest.raises(MF.FamilyEditError, match="runs across a further edit"):
