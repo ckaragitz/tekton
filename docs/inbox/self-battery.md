@@ -372,3 +372,7 @@ determinism judged by the twin. It takes about 4 s. With the corpus it takes abo
     - #1087 (`WORK_PLANES`);
     - the measured scope on #241 / #786, #94 and #1076.
 - **Staged / shipped:** nothing staged for the viewer.
+
+## Fragments (one per later PR, `docs/inbox/self-battery.d/`)
+
+- `1085-side-ref-plane.md` -- undriven extrusions author `m_sideRefPlaneCurveBased` True; the battery's 49 rows on that field pass (#1085)
