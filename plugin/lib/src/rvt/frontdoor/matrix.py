@@ -106,7 +106,8 @@ DOWNLIGHT_EARLIER_FORM = (
     "Trim / Lens Diameter and Housing Height wired by the drive law, #913 / #950) "
     "and can / trim / lens plan circles drawn as one full arc each (#916 / #980) "
     "and its box solids' cap tags following each extrusion's own Start / End "
-    "(#1030); the list is not complete. Today's output is family-mode "
+    "(#1030) and every extrusion authored side-ref-plane curve based, as born ones "
+    "are (#1085); the list is not complete. Today's output is family-mode "
     "validator VALID (0 errors) with NO viewer or desktop-Revit verdict: the "
     "certification speaks for the earlier form and for the four-registry load "
     "mechanism, not for the bytes delivered now")
@@ -166,7 +167,8 @@ STAGE_L8_EARLIER_FORM = (
     "Depth / Height through the drive law (#931) and the transformer's real parts with "
     "NEC clearance zones (#887 / #935) and its standard Frequency filled from its "
     "catalog fact (#863), and every box solid's cap tags following its own Start / "
-    "End (#1030); the list is not complete -- and the loader now "
+    "End (#1030) and every extrusion authored side-ref-plane curve based (#1085); the "
+    "list is not complete -- and the loader now "
     "writes the empty Family.m_oFamDimConstrMgr / FamilySymbol.m_pMoveRestrictions forms "
     "that genesis-12 found nulled in this file. The PASS is also narrower than a "
     "viewer PASS reads, as the ledger words it: verdicts #24/#25: placement on the "
@@ -218,10 +220,10 @@ EVIDENCE_FORMS: Dict[str, Dict[str, Any]] = {
                   "the directory is not) inside that release's build context"),
         "certified": None,
         "reviewed": {
-            2026: "e32de4c8f7d56d4d798d9ef360c1e70fe9ba074b390218ac8a37884a2a400b31",
-            2025: "5460bedc550c2687fc6f2b89edc51a4cda6a4d5cd4ce7bd5b7fbcf39a3ca6a54",
+            2026: "94bf9a656866af2940665dd443fb3d5a714c469d23db18c05e0159d043e037f8",
+            2025: "78914361b01f4808982ab5cc48b9569b75b34d233eb1464c330a8a22d8dfc658",
         },
-        "reviewed_at": "#1030 (cap tags follow Start / End)",
+        "reviewed_at": "#1085 (every extrusion authored side-ref-plane curve based)",
         "caveat": DOWNLIGHT_EARLIER_FORM,
         "doc_names": (r"L_downlight",),
     },
@@ -237,10 +239,10 @@ EVIDENCE_FORMS: Dict[str, Dict[str, Any]] = {
                   "of the lines '<tag> <sha256 of that f.rfa>' joined by newlines"),
         "certified": None,
         "reviewed": {
-            2026: "9b023c8270acc610580dce53404dd9554752376f31d9317d055269c99b63c64f",
-            2025: "d29bcc222d60c29beceea9055a2c62b35745674824296cbf4c23cda7b79a46e6",
+            2026: "54fc1536c10cd735b4fccc9d9863e2494de53e3e1346b3815509705ed09ebeaa",
+            2025: "8bb37bcbc316b62ff18c8887056ef5486b194a956ff72261f4446bd6d1cd7c0c",
         },
-        "reviewed_at": "#1030 (cap tags follow Start / End)",
+        "reviewed_at": "#1085 (every extrusion authored side-ref-plane curve based)",
         "caveat": STAGE_L8_EARLIER_FORM,
         "doc_names": (r"stage_L8",),
     },

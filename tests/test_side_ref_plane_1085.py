@@ -85,13 +85,26 @@ def test_the_drive_law_still_flips_a_false_extrusion():
     assert ex.obj["m_sideRefPlaneCurveBased"] is True
 
 
-def test_the_field_survives_the_write_and_read_back(tmp_path):
+@pytest.mark.parametrize("year", [None, 2025, 2024])
+def test_the_field_survives_the_write_and_read_back(tmp_path, year):
     """Authored True must still read True from the written file, under its own
-    release -- the property is about the file, not the in-memory object."""
+    release -- the property is about the file, not the in-memory object, and a
+    port layer must not drop or reset it (the box: 2024 arcs are #786)."""
     from rvt.famgen import conformance as CO
+    from rvt.frontdoor import release_ctx as RC
     path = str(tmp_path / "box.rfa")
-    F.make_generic_model(parts=[_part("box")], name="Read", source="1085").write(
-        path, validate=False, provenance=False)
+
+    def build():
+        F.make_generic_model(parts=[_part("box")], name="Read", source="1085").write(
+            path, validate=False, provenance=False)
+    if year is None:
+        build()
+    else:
+        base = RC._bundled_base_of(year)
+        if not base:
+            pytest.skip(f"no bundled Revit {year} base")
+        with RC.release_build_context(base):
+            build()
     assert os.path.getsize(path) > 0
     _note, objs, counters = CO.iter_objects(path, ("ExtrusionElem",))
     assert counters == {"undecoded_records": 0, "partial_records": 0}
