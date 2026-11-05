@@ -1,0 +1,93 @@
+{
+ "issue": 796,
+ "tool": "tools/self_battery.py --pin-aliases",
+ "what": "release-free groups of self-battery case keys whose written bytes are identical BY DESIGN (a variant the constructor accepts that does not change that product); an alias outside these groups FAILS the run",
+ "relations": 25,
+ "groups": [
+  [
+   "archetype:cable_tray",
+   "archetype:cable_tray nested_hardware=yes"
+  ],
+  [
+   "archetype:conduit",
+   "archetype:conduit nested_hardware=yes"
+  ],
+  [
+   "archetype:junction_box",
+   "archetype:junction_box nested_hardware=yes"
+  ],
+  [
+   "archetype:lighting_control_panel",
+   "archetype:lighting_control_panel nested_hardware=yes"
+  ],
+  [
+   "archetype:strut_channel",
+   "archetype:strut_channel nested_hardware=yes"
+  ],
+  [
+   "archetype:wireway",
+   "archetype:wireway nested_hardware=yes"
+  ],
+  [
+   "make_family:luminaire",
+   "make_family:luminaire kind=troffer"
+  ],
+  [
+   "make_family:luminaire dummy=yes",
+   "make_family:luminaire kind=troffer dummy=yes"
+  ],
+  [
+   "make_family:luminaire kind=downlight",
+   "make_family:luminaire kind=downlight size=2x2",
+   "make_family:luminaire kind=recessed-downlight",
+   "make_family:luminaire kind=recessed-downlight size=2x2"
+  ],
+  [
+   "make_family:luminaire kind=downlight dummy=yes",
+   "make_family:luminaire kind=downlight size=2x2 dummy=yes",
+   "make_family:luminaire kind=recessed-downlight dummy=yes",
+   "make_family:luminaire kind=recessed-downlight size=2x2 dummy=yes"
+  ],
+  [
+   "make_family:luminaire kind=troffer size=2x2",
+   "make_family:luminaire size=2x2"
+  ],
+  [
+   "make_family:luminaire kind=troffer size=2x2 dummy=yes",
+   "make_family:luminaire size=2x2 dummy=yes"
+  ],
+  [
+   "part_shape:box",
+   "part_shape:box work_plane=vertical"
+  ],
+  [
+   "part_shape:cone",
+   "part_shape:cone work_plane=vertical"
+  ],
+  [
+   "part_shape:cylinder",
+   "part_shape:cylinder work_plane=vertical"
+  ],
+  [
+   "part_shape:dome",
+   "part_shape:dome work_plane=vertical"
+  ],
+  [
+   "part_shape:polygon",
+   "part_shape:polygon work_plane=vertical"
+  ],
+  [
+   "part_shape:sphere",
+   "part_shape:sphere work_plane=vertical"
+  ],
+  [
+   "prism:rect",
+   "prism:rect drive=yes",
+   "prism:rect settle_drives=yes"
+  ],
+  [
+   "prism:ring prism_drive=372",
+   "prism:ring prism_drive=none"
+  ]
+ ]
+}

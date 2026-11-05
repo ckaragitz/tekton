@@ -1,0 +1,4 @@
+# the self-battery (#796): its --quick mode (native release, every archetype at its
+# nominal, every instrument) + the conformance instrument on a corpus of our own
+# files -- fresh-clone safe, no samples/ needed (~7 s)
+tests/test_self_battery_796.py
