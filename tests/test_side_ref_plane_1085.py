@@ -12,10 +12,29 @@ import os
 
 import pytest
 
+from conftest import context_constants, ladder_constants
 from rvt.famgen import drive_law as DL
 from rvt.famgen import factory as F
 from rvt.famgen import fan_powered as FPB
 from rvt.famgen import revolve as RV
+
+# the read-back enters each release's build context in-process: conftest's
+# #707 leak guard watches the write side and the read-side ladder
+pytestmark = pytest.mark.usefixtures("no_release_leak")
+
+
+@pytest.fixture
+def release_leak_extra():
+    return lambda: dict(ladder_constants(), **context_constants())
+
+
+@pytest.fixture(scope="module", autouse=True)
+def _warm_native_codecs(tmp_path_factory):
+    """The first write in a process seeds the native codec singletons
+    (standalone.install_schema, by design): do it once before the guard's
+    first snapshot, so only a swap a release context leaves behind is red."""
+    F.make_archetype(product="wireway").write(
+        str(tmp_path_factory.mktemp("warm") / "w.rfa"))
 
 
 def _part(shape, **kw):
