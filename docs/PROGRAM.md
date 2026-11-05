@@ -49,6 +49,11 @@ last-mile deliverable format; Autodesk's reader is the arbiter of "works" (hard 
 
 ## Current objectives (weeks, not months) — each names its evidence of done
 
+*As of 2026-08-11 (the last change to this list). Whoever changes an objective moves this date in
+the same PR. A tech-lead session that finds it more than 14 days old reconciles the list with the
+board (#56) and the merged work, or confirms it and moves the date, before its own task
+(`CLAUDE.md` §4).*
+
 1. **O1 Open cell:** get the desktop-Revit dialog text for the failing instance files recorded in
    the audit log (#16, `needs-revit-desktop`); every hypothesis after that is a single-variable
    round with a control. *Done = verdict #49+ in genesis-audit names the failing element/class.*
