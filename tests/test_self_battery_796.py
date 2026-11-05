@@ -98,7 +98,7 @@ def test_mine_reads_rfa_and_rft_each_in_its_own_release_and_counts_failures(tmp_
     assert o.fallbacks == 0 and o.undecoded_records == 0 and o.partial_records == 0
     assert sum(o.failure_types.values()) == 1 and len(o.failures) == 1
     s = o.summary()
-    assert "3/4" in s and "1 failed" in s and "missing records" in s, s
+    assert "3/4" in s and "1 failed" in s and "partly decoded" in s and "undecoded" in s, s
     assert o.invariants(), "nothing derived from three real family documents"
 
 
@@ -132,6 +132,47 @@ def test_partly_decoded_records_are_counted_and_left_out(tmp_path, monkeypatch, 
     assert st_ == "fail" and "partly" in detail and extra["partial_records"] > 0
 
 
+def test_records_the_decoder_cannot_read_are_counted_and_fail_conformance(tmp_path, monkeypatch,
+                                                                          ours):
+    """The twin of the partial case: a record whose decode RAISES is counted
+    (corpus side and check side), never silently dropped, and the battery's
+    conformance FAILS on it (#1088 review)."""
+    from rvt.objects import ObjectDecoder
+    clean = CO.mine(os.path.dirname(ours))
+
+    def boom(self, class_id, payload):
+        raise ValueError("forced by the test")
+    monkeypatch.setattr(ObjectDecoder, "decode_record", boom)
+    o = CO.mine(os.path.dirname(ours))
+    assert o.undecoded_records > 0 and not o.specimens
+    assert "undecoded" in o.summary()
+    st = {}
+    CO.check_file(ours, clean.invariants(), stats=st)
+    assert st["undecoded_records"] > 0
+    st_, detail, extra = SB.Battery(str(tmp_path), invariants=clean.invariants()
+                                    )._i_conformance(ours, NATIVE)
+    assert st_ == "fail" and extra["undecoded_records"] > 0, detail
+
+
+def test_a_file_of_ours_read_on_a_fallback_rung_fails_verify_and_conformance(tmp_path,
+                                                                              monkeypatch, ours,
+                                                                              own_corpus):
+    """Our own output must name its release through its own schema: a fallback
+    rung reading it is a FAIL, not a footnote (#1088 review)."""
+    import rvt.global_framing as GF
+    real = GF.enter_own_release
+
+    def fallback(stack, path):
+        real(stack, path)
+        return "forced by the test: read on the pinned fallback table"
+    monkeypatch.setattr(GF, "enter_own_release", fallback)
+    bat = SB.Battery(str(tmp_path), invariants=own_corpus[1])
+    st_v, d_v, _ = bat._i_verify(ours, NATIVE)
+    st_c, d_c, _ = bat._i_conformance(ours, NATIVE)
+    assert (st_v, st_c) == ("fail", "fail"), (d_v, d_c)
+    assert "did not resolve its release" in d_v and "did not resolve its release" in d_c
+
+
 def test_a_requested_class_with_no_specimens_is_named(own_corpus):
     o = CO.mine(own_corpus[0], classes=("ExtrusionElem", "NoSuchClassAnywhere"))
     assert o.classes_without_specimens() == ["NoSuchClassAnywhere"]
@@ -150,6 +191,16 @@ def test_the_oracle_cache_form_round_trips_and_carries_no_path(tmp_path):
     back = CO.Oracle.from_json(json.loads(blob))
     assert back.invariants() == o.invariants()
     assert (back.files, back.attempted, back.failed) == (o.files, o.attempted, o.failed)
+    # a cache HIT must report exactly what a miss reports (#1088 review)
+    assert back.summary() == o.summary()
+    assert dict(back.releases) == dict(o.releases) and dict(back.releases)
+    assert dict(back.failure_types) == dict(o.failure_types)
+    assert sum(o.failure_types.values()) == o.failed == 1
+    # the cache form is a snapshot: observing more afterwards does not change it
+    d = o.to_json()
+    before = json.dumps(d, sort_keys=True)
+    o.observe("ExtrusionElem", {"m_new_field_after_snapshot": 1})
+    assert json.dumps(d, sort_keys=True) == before
 
 
 def test_check_file_reads_the_written_file_and_is_not_inert(tmp_path, own_corpus):
@@ -345,7 +396,8 @@ def test_a_non_generator_with_output_must_say_why(monkeypatch):
     monkeypatch.setattr(SB, "NON_FAMILY_SUBCOMMANDS", {})
     cases = SB.enumerate_matrix(sources=["make_family"])[0]
     gaps = sorted(c.product for c in cases if c.error)
-    assert gaps == ["load", "load-device", "loader"], gaps
+    # proofs takes no --output but WRITES (--no-validate): a writer is a gap too (#1088 review)
+    assert gaps == ["load", "load-device", "loader", "proofs"], gaps
 
 
 def test_adding_an_archetype_adds_its_cases_with_no_edit_here(monkeypatch):
@@ -413,6 +465,30 @@ def test_a_broken_base_or_an_empty_run_fails(tmp_path, monkeypatch):
     assert os.environ.get("SOURCE_DATE_EPOCH") == "1234"
 
 
+def test_an_unpinned_or_uncertified_base_is_broken_not_skipped(monkeypatch):
+    from rvt.frontdoor import base as FB
+    real = FB.resolve_base
+
+    def unpinned(*a, **k):
+        rb = real(*a, **k)
+        return dataclasses.replace(rb, pinned=False) if k.get("target_release") == 2024 else rb
+    monkeypatch.setattr(FB, "resolve_base", unpinned)
+    run, _b, _s, bad = SB.releases([2024])
+    assert run == [] and "not pinned + certified" in bad[2024]
+
+
+def test_the_exit_code_fails_on_every_failure_kind():
+    ok_row = {"state": "pass", "ok": True}
+    good = {"summary": {"totals": {"fail": 0}}}
+    assert SB.exit_code(good, [], {"state": "ok"}, [ok_row]) == 0
+    assert SB.exit_code({"summary": {"totals": {"fail": 1}}}, [], {"state": "ok"}, [ok_row]) == 1
+    assert SB.exit_code(good, [{"ok": False}], {"state": "ok"}, [ok_row]) == 1   # a pinned probe
+    assert SB.exit_code(good, [], {"state": "fail"}, [ok_row]) == 1
+    assert SB.exit_code(good, [], {"state": "partial"}, [ok_row]) == 1
+    assert SB.exit_code(good, [], {"state": "skip"}, [ok_row]) == 0
+    assert SB.exit_code(good, [], {"state": "ok"}, []) == 1                      # ran nothing
+
+
 # -- states: pass / fail / refused / alias; a crash is a fail ------------------
 
 def _case(build, product="probe", **kw):
@@ -434,18 +510,118 @@ def test_a_named_port_refusal_is_refused_not_failed(tmp_path):
 
 
 @pytest.mark.parametrize("exc", ["ReleaseContextError", "BaseNotCertified",
-                                 "UnsupportedTarget", "KeyError"])
+                                 "UnsupportedTarget", "KeyError", "PortabilityError"])
 def test_anything_but_a_port_refusal_is_a_failure(tmp_path, exc):
+    """The bare ``PortabilityError`` is raised for OUR encoder gaps ("unsupported
+    field kind", a drifted 2023 pin): a defect, never a known-good refusal
+    (#1088 review) -- only the named Missing20xx refuse."""
     from rvt import versions as V
     from rvt.frontdoor import base as FB
+    from rvt.genesis.port2025 import PortabilityError
     cls = {"ReleaseContextError": RC.ReleaseContextError, "BaseNotCertified": FB.BaseNotCertified,
-           "UnsupportedTarget": V.UnsupportedTarget, "KeyError": KeyError}[exc]
+           "UnsupportedTarget": V.UnsupportedTarget, "KeyError": KeyError,
+           "PortabilityError": PortabilityError}[exc]
 
     def crash():
         raise cls("a release context entered inside another one")
     row = SB.Battery(str(tmp_path)).run(_case(crash))[0]
     assert row["state"] == "fail" and row["instruments"]["build"]["state"] == "fail", exc
     assert SB.classify(cls("x")) == "fail"
+
+
+@pytest.mark.parametrize("missing", ["port2025.Missing2025", "port2024.Missing2024",
+                                     "port2023.Missing2023"])
+def test_every_named_missing_class_refuses(missing):
+    import importlib
+    mod, name = missing.split(".")
+    cls = getattr(importlib.import_module(f"rvt.genesis.{mod}"), name)
+    assert SB.classify(cls("class 'X' has no twin")) == "refused"
+
+
+def test_a_stale_file_from_an_earlier_run_is_never_graded(tmp_path):
+    """A writer that returns but writes nothing must FAIL write even when an
+    earlier run left a family at that very path -- the stale bytes are never
+    handed to the read-back instruments or to determinism (#1088 review)."""
+    good = _case(lambda: F.make_archetype(product="wireway"))
+    first = SB.Battery(str(tmp_path), keep=True).run(good)[0]
+    assert first["state"] == "pass" and os.path.isfile(first["path"])
+
+    def no_write(prod, path):
+        return {"ok": True}
+    lazy = SB.Case("pinned", "probe", {}, release=NATIVE,
+                   build=lambda: F.make_archetype(product="wireway"), write=no_write)
+    assert lazy.cid == good.cid                     # the same case dir as the first run
+    row = SB.Battery(str(tmp_path), keep=True).run(lazy)[0]
+    assert row["instruments"]["write"]["state"] == "fail", row["instruments"]["write"]
+    assert "wrote no file" in row["instruments"]["write"]["detail"]
+    assert row["state"] == "fail"
+    for inst in ("verify", "validate", "law", "determinism"):
+        assert row["instruments"][inst]["state"] == "not_run", inst
+
+
+def test_a_hung_twin_fails_determinism_instead_of_hanging(tmp_path):
+    tw = SB.Twin(str(tmp_path), {})
+    tw.proc = None
+    import queue as Q
+    import subprocess as SP
+    tw.proc = SP.Popen([sys.executable, "-c", "import time; time.sleep(60)"],
+                       stdin=SP.PIPE, stdout=SP.PIPE, text=True)
+    tw._lines = Q.Queue()
+    t0 = time.time()
+    with pytest.raises(RuntimeError, match="no answer in 0.5 s"):
+        tw.collect(timeout=0.5)
+    assert time.time() - t0 < 30 and tw.proc is None
+
+
+def test_a_corpus_that_mines_only_partly_fails_the_run(tmp_path, own_corpus):
+    corpus = tmp_path / "corpus"
+    corpus.mkdir()
+    for p in sorted(os.listdir(own_corpus[0])):
+        shutil.copy(os.path.join(own_corpus[0], p), corpus / p)
+    (corpus / "zz_junk.rfa").write_bytes(b"\0" * 1024)
+    inv, blk = SB.load_oracle(str(corpus), str(tmp_path / "cache"), explicit=True)
+    assert inv and blk["state"] == "partial" and "1 of" in blk["reason"]
+    rc = SB.main(["--quick", "--only", "archetype:wireway@", "--no-twin",
+                  "--corpus", str(corpus), "--out", str(tmp_path / "o")])
+    assert rc == 1
+
+
+def test_the_release_and_write_instruments_can_fail(tmp_path, ours):
+    bat = SB.Battery(str(tmp_path))
+    st, detail, _ = bat._i_release(ours, 2025)          # a native file is not a 2025 file
+    assert st == "fail" and str(NATIVE) in detail
+
+    def explode(prod, path):
+        raise OSError("disk full (forced by the test)")
+    case = SB.Case("pinned", "probe", {}, release=NATIVE,
+                   build=lambda: F.make_archetype(product="wireway"), write=explode)
+    row = bat.run(case)[0]
+    assert row["instruments"]["build"]["state"] == "pass"
+    assert row["instruments"]["write"]["state"] == "fail" and "disk full" in \
+        row["instruments"]["write"]["detail"]
+    assert row["state"] == "fail"
+
+
+@pytest.mark.parametrize("second", ["different bytes", "nothing"])
+def test_route_determinism_fails_when_the_second_run_differs(tmp_path, ours, second):
+    calls = []
+
+    def route(out_dir, year):
+        calls.append(out_dir)
+        os.makedirs(out_dir, exist_ok=True)
+        if len(calls) == 1:
+            shutil.copy(ours, os.path.join(out_dir, "f.rfa"))
+        elif second == "different bytes":
+            data = bytearray(open(ours, "rb").read())
+            data[-1] ^= 0xFF
+            open(os.path.join(out_dir, "f.rfa"), "wb").write(bytes(data))
+        return {"ok": True}
+    case = SB.Case("ifc_route", "flaky", {}, release=NATIVE, route=route)
+    rows = SB.Battery(str(tmp_path)).run(case)
+    det = [r["instruments"]["determinism"] for r in rows if r["case"] != case.cid]
+    assert len(calls) == 2 and det and det[0]["state"] == "fail", det
+    assert ("sha256 differs" if second == "different bytes" else "did not write it") \
+        in det[0]["detail"]
 
 
 def test_an_instrument_that_crashes_is_a_fail_never_a_skip(tmp_path, monkeypatch):

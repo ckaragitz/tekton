@@ -134,10 +134,12 @@ import inspect
 import itertools
 import json
 import os
+import queue
 import re
 import shutil
 import subprocess
 import sys
+import threading
 import time
 import traceback
 from dataclasses import dataclass
@@ -182,17 +184,24 @@ UNIVERSAL_DEFAULT = 0.5
 #: case's slug): the basename is part of the bytes (#168), so byte-identical
 #: content -- an alias -- is only visible when the name cannot differ
 FAMILY_BASENAME = "battery.rfa"
-#: make_family subcommands that take ``--output`` but write no FAMILY, and why;
-#: any other non-generator with ``--output`` is a FAIL row (a family writer the
-#: battery would otherwise never see)
+#: make_family subcommands that WRITE (they take ``--output`` or
+#: ``--no-validate``) but are not enumerated as generators, and why; any other
+#: such non-generator is a FAIL row (a family writer the battery would otherwise
+#: never see)
 NON_FAMILY_SUBCOMMANDS: Dict[str, str] = {
     "load": "loads the generated panelboard into a project: an .rvt lane, not a family",
     "load-device": "loads a generated device family into a project: an .rvt lane",
     "loader": "the loader readiness report (JSON); writes no family",
+    "proofs": ("writes the three proof families, through make_panelboard / "
+               "make_transformer / make_troffer -- the constructors the panelboard, "
+               "transformer and luminaire generator cases already run"),
 }
 #: the determinism twin's clock runs this far ahead: past a year, a day, an
 #: hour, a minute and a second boundary (400 d + 1 h + 1 min + 1.5 s)
 TIME_SHIFT_S = 400 * 86400 + 3661.5
+#: how long ``Twin.collect`` waits for one case's answer before it kills the twin
+#: and FAILS that case's determinism (the slowest case builds in seconds)
+TWIN_TIMEOUT_S = 600.0
 #: the alias pin: release-free groups of case keys whose bytes are identical
 #: BY DESIGN (regenerate from a full run with --pin-aliases)
 ALIAS_PIN = os.path.join(HERE, "self_battery_aliases.json")
@@ -392,15 +401,16 @@ def enum_make_family(decl: Dict[str, Any]) -> List[Case]:
     info: Dict[str, Any] = {"generators": {}, "excluded": sorted(
         n for n, p in subs.items() if not _is_generator(p))}
     for sub in info["excluded"]:
-        if "output" not in {a.dest for a in subs[sub]._actions}:
+        dests = {a.dest for a in subs[sub]._actions}
+        if not dests & {"output", "no_validate"}:
             continue                          # an info / report command: writes nothing
         if sub in NON_FAMILY_SUBCOMMANDS:
             continue
         cases.append(Case("make_family", sub, {}, repro={"argv": [sub]},
-                          error=(f"declaration gap: make_family {sub!r} takes --output but is "
-                                 f"not a generator (no optional --output + --no-validate + "
-                                 f"--json) and NON_FAMILY_SUBCOMMANDS does not say why it "
-                                 f"writes no family")))
+                          error=(f"declaration gap: make_family {sub!r} writes (--output or "
+                                 f"--no-validate) but is not a generator (no optional --output "
+                                 f"+ --no-validate + --json) and NON_FAMILY_SUBCOMMANDS does "
+                                 f"not say why the battery need not build it")))
     info["non_family_with_output"] = {k: v for k, v in NON_FAMILY_SUBCOMMANDS.items()
                                       if k in subs}
     for sub in sorted(n for n, p in subs.items() if _is_generator(p)):
@@ -821,7 +831,9 @@ def load_oracle(corpus: Optional[str], cache_dir: Optional[str], *, explicit: bo
 
     No corpus at the DEFAULT location is a skip (a fresh clone has none); a
     corpus the caller named (``explicit``) that is missing, empty or mines
-    nothing is a FAIL -- the instrument was asked for and did not run."""
+    nothing is a FAIL -- the instrument was asked for and did not run.  A corpus
+    that mines only PARTLY (some files fail to decode) is ``partial``: its
+    invariants are used and the run fails."""
     from rvt.famgen import conformance as CO
     if not corpus:
         return None, {"state": "skip", "reason": "no born corpus present "
@@ -861,7 +873,6 @@ def load_oracle(corpus: Optional[str], cache_dir: Optional[str], *, explicit: bo
                 "fallbacks": oracle.fallbacks,
                 "undecoded_records": oracle.undecoded_records,
                 "partial_records": oracle.partial_records,
-                "missing_records": oracle.missing_records,
                 "classes_without_specimens": oracle.classes_without_specimens(),
                 "releases": dict(oracle.releases),
                 "classes_with_invariants": len(inv),
@@ -870,6 +881,13 @@ def load_oracle(corpus: Optional[str], cache_dir: Optional[str], *, explicit: bo
     if not oracle.files or not inv:
         blk["state"] = "fail"
         return None, blk
+    if oracle.failed:
+        # the invariants rest on the files that DID decode; a corpus file our
+        # decoder cannot read is an instrument defect, so the run fails -- the
+        # conformance rows still run (#1088 review)
+        blk["state"] = "partial"
+        blk["reason"] = (f"{oracle.failed} of {oracle.attempted} corpus files did not decode; "
+                         f"the invariants rest on the other {oracle.files}")
     return inv, blk
 
 
@@ -877,18 +895,25 @@ def load_oracle(corpus: Optional[str], cache_dir: Optional[str], *, explicit: bo
 # running a case
 # ---------------------------------------------------------------------------
 
-#: the NAMED port-layer refusals (DONE 4) -- and nothing else.  Deliberately
-#: NOT here: ``ReleaseContextError`` (also raised for a nested context, a base
-#: whose schema hash misses its pin, a base whose release cannot be detected
-#: -- defects), ``BaseNotCertified`` and ``UnsupportedTarget`` (the battery
-#: runs only releases whose certified base resolved, so either is a defect).
-REFUSALS = (("rvt.genesis.port2025", "PortabilityError"),)
+#: the NAMED port-layer refusals (DONE 4) -- and nothing else: a port layer
+#: saying by name that a class has no twin in the target release.  Deliberately
+#: NOT here: the BASE ``PortabilityError`` (a bare one is raised for our own
+#: encoder gaps -- "unsupported field kind", "not the pinned Revit-2023 schema",
+#: "framing ordinals drifted", an id that does not fit 32 bits -- every one a
+#: defect, #1088 review); ``ReleaseContextError`` (also raised for a nested
+#: context, a base whose schema hash misses its pin, a base whose release
+#: cannot be detected -- defects); ``BaseNotCertified`` and
+#: ``UnsupportedTarget`` (the battery runs only releases whose certified base
+#: resolved, so either is a defect).
+REFUSALS = (("rvt.genesis.port2025", "Missing2025"),
+            ("rvt.genesis.port2024", "Missing2024"),
+            ("rvt.genesis.port2023", "Missing2023"))
 
 
 def _refusal_types() -> Tuple[type, ...]:
-    """The ``PortabilityError`` family (``Missing2025`` / ``Missing2024`` /
-    ``Missing2023``): a port layer saying by name that a class has no twin in
-    the target release.  Every other exception is a FAIL."""
+    """``Missing2025`` / ``Missing2024`` / ``Missing2023``.  Every other
+    exception -- the bare ``PortabilityError`` they derive from included -- is
+    a FAIL."""
     return tuple(getattr(importlib.import_module(mod), name) for mod, name in REFUSALS)
 
 
@@ -1014,6 +1039,7 @@ class Twin:
         self.log = os.path.join(out, "determinism-twin.log")
         self.proc: Optional[subprocess.Popen] = None
         self._log_fh = None
+        self._lines: Optional["queue.Queue[str]"] = None
         self.started = 0
 
     def describe(self) -> Dict[str, Any]:
@@ -1034,6 +1060,16 @@ class Twin:
             [sys.executable, os.path.abspath(__file__), "--twin", json.dumps(self.cfg)],
             stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=self._log_fh,
             text=True, cwd=ROOT, env=env)
+        # a reader thread, so ``collect`` can wait with a DEADLINE: a hung twin
+        # fails that case's determinism instead of hanging the whole battery
+        self._lines = q = queue.Queue()
+        out = self.proc.stdout
+
+        def pump():
+            for line in iter(out.readline, ""):
+                q.put(line)
+            q.put("")                                   # EOF: the twin exited
+        threading.Thread(target=pump, name="self-battery-twin", daemon=True).start()
         self.started += 1
 
     def submit(self, cid: str, target: str) -> None:
@@ -1051,22 +1087,35 @@ class Twin:
         self.proc.stdin.flush()
         return self.collect()
 
-    def collect(self) -> Dict[str, Any]:
-        line = self.proc.stdout.readline() if self.proc else ""
+    def collect(self, timeout: Optional[float] = None) -> Dict[str, Any]:
+        timeout = TWIN_TIMEOUT_S if timeout is None else timeout
+        try:
+            line = self._lines.get(timeout=timeout) if self.proc and self._lines else ""
+        except queue.Empty:
+            self.close(kill=True)
+            raise RuntimeError(f"the determinism twin gave no answer in {timeout:g} s -- "
+                               f"killed, restarted for the next case; see {self.log}")
         if not line:
             rc = self.proc.poll() if self.proc else None
             self.close()
             raise RuntimeError(f"the determinism twin died (rc={rc}); see {self.log}")
         return json.loads(line)
 
-    def close(self) -> None:
+    def close(self, kill: bool = False) -> None:
         if self.proc is not None:
             try:
+                if kill:
+                    raise TimeoutError
                 self.proc.stdin.close()
                 self.proc.wait(timeout=30)
             except Exception:                                     # noqa: BLE001
                 self.proc.kill()
+                try:
+                    self.proc.wait(timeout=30)
+                except Exception:                                 # noqa: BLE001
+                    pass
             self.proc = None
+            self._lines = None
         if self._log_fh is not None:
             self._log_fh.close()
             self._log_fh = None
@@ -1184,8 +1233,15 @@ class Battery:
     # -- producing ------------------------------------------------------
     def produce(self, case: Case, path: str) -> Tuple[Optional[str], Any, Dict[str, Any]]:
         """Build + write one family case inside its release.  Returns
-        ``(failed stage or None, exception or write report, timings)``."""
+        ``(failed stage or None, exception or write report, timings)``.
+
+        ``path`` is REMOVED first: a file left there by an earlier run (a fixed
+        ``--out``, a ``--keep`` run) would otherwise satisfy "the writer wrote a
+        file" and hand last run's bytes to every read-back instrument and to
+        determinism (#1088 review)."""
         os.makedirs(os.path.dirname(path), exist_ok=True)
+        if os.path.lexists(path):
+            os.remove(path)
         stage = "build"
         t: Dict[str, Any] = {}
         t0 = time.perf_counter()              # never the (possibly shifted) wall clock
@@ -1218,6 +1274,9 @@ class Battery:
         t0 = time.time()
         row = _new_row(case, case.cid)
         name = slug(case.cid)
+        # a clean case directory: nothing an earlier run left (its a/ or the
+        # twin's b/) can be graded as this run's output
+        shutil.rmtree(os.path.join(self.out, str(case.release), name), ignore_errors=True)
         da = os.path.join(self.out, str(case.release), name, "a")
         db = os.path.join(self.out, str(case.release), name, "b")
         path = os.path.join(da, FAMILY_BASENAME)
@@ -1417,7 +1476,10 @@ class Battery:
         detail = (f"crc_fail={r.get('gzip_crc_failures')} ecc_mismatch={r.get('ecc_mismatch')}"
                   f" decode={d.get('clean')}/{d.get('records')}")
         if note:
-            detail += f"; release read via a fallback: {note}"
+            # a file WE wrote must name its release through its own schema; a
+            # fallback rung reading it is a defect, not a footnote (#1088 review)
+            return "fail", f"our file's own schema did not resolve its release ({note}); " \
+                           + detail, None
         return ("pass" if r.get("ok") else "fail", detail, None)
 
     def _i_validate(self, path, year):
@@ -1484,6 +1546,11 @@ class Battery:
                             f"or not at all, so their fields went unchecked; " + detail), extra
         if not st.get("rules_evaluated"):
             return "fail", "inert: 0 rules evaluated on this file", extra
+        if st.get("release_note"):
+            # read on a fallback rung: every field was checked against a table
+            # the file itself did not choose -- not a pass for a file we wrote
+            return "fail", (f"our file's own schema did not resolve its release "
+                            f"({st['release_note']}); " + detail), extra
         if qs:
             detail += ": " + qs[0]["message"][:160]
         return ("pass" if not qs else "fail", detail, extra)
@@ -1531,7 +1598,11 @@ def _catalog() -> Dict[str, Callable[[], Any]]:
     * ``panelboard_types`` -- a multi-type family (#163), a free-text option
       no axis enumerates;
     * ``ifc_pset_drives`` -- an IFC's pset parameters driving the parts they
-      name (#714), the assembly lane's plan built all-or-nothing."""
+      name (#714), the assembly lane's plan built all-or-nothing;
+    * ``shape_mixed_assembly`` -- parts of DIFFERENT shapes sharing one family
+      (box + cylinder + cylinder_y), the multi-part form the prompt and IFC
+      assembly lanes emit; the part_shape source builds one part per family;
+    * ``panelboard_600A`` -- a free-numeric mains rating no axis enumerates."""
     from rvt.famgen import factory as F
 
     def _one_box(regen_edge):
@@ -1571,6 +1642,15 @@ def _catalog() -> Dict[str, Callable[[], Any]]:
         "drive_one_box_control": _one_box(False),
         "panelboard_types": lambda: F.make_panelboard(name="B_panelT", types=["225A", "400A"]),
         "ifc_pset_drives": _pset_drives,
+        "shape_mixed_assembly": lambda: F.make_generic_model(
+            parts=[{"name": "base", "shape": "box", "width_ft": 2, "depth_ft": 2,
+                    "height_ft": 0.2},
+                   {"name": "mast", "shape": "cylinder", "radius_ft": 0.1,
+                    "height_ft": 3, "base_z_ft": 0.2},
+                   {"name": "arm", "shape": "cylinder_y", "radius_ft": 0.08,
+                    "length_ft": 1.5, "center": (0, 0.75), "base_z_ft": 3.0}],
+            name="B_mixed", source="self battery"),
+        "panelboard_600A": lambda: F.make_panelboard(name="B_600", mains_a=600),
     }
 
 
@@ -1699,7 +1779,8 @@ def text_summary(report: Dict[str, Any]) -> str:
     for y, why in sorted((report["releases"].get("broken") or {}).items()):
         lines.append(f"  release {y} BROKEN (a FAIL row): {why}")
     c = report["corpus"]
-    lines.append(f"  corpus: {c.get('summary') or c.get('reason')}")
+    lines.append(f"  corpus: {c.get('summary') or c.get('reason')}"
+                 + (f"  -- PARTIAL (a FAIL): {c['reason']}" if c.get("state") == "partial" else ""))
     d = report.get("determinism") or {}
     if d:
         lines.append(f"  determinism: {d.get('mode')}, clock {d.get('time_shift')}"
@@ -1909,8 +1990,16 @@ def _main(a: argparse.Namespace, args: List[str], sde: Optional[str]) -> int:
     if a.json:
         print(json.dumps(report, indent=1, default=str))
     print("\n" + txt + f"\nreport -> {rp}")
+    return exit_code(report, pinned, cblk, rows)
+
+
+def exit_code(report: Dict[str, Any], pinned: Sequence[Dict[str, Any]],
+              cblk: Dict[str, Any], rows: Sequence[Dict[str, Any]]) -> int:
+    """1 when ANYTHING failed: a FAIL row (a BROKEN release is one), a pinned
+    probe, a corpus that was asked for and failed or mined only partly, or a
+    run that executed no case at all; else 0."""
     failed = report["summary"]["totals"]["fail"] + sum(1 for r in pinned if not r["ok"])
-    if cblk.get("state") == "fail":
+    if cblk.get("state") in ("fail", "partial"):
         failed += 1
     if not rows:
         failed += 1

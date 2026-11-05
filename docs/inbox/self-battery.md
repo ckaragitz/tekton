@@ -123,9 +123,9 @@ Fixed in `src/rvt/famgen/conformance.py`:
 
 - **`iter_objects(path, classes)`** decodes inside `enter_own_release`. It returns the release note, and it counts what did not decode instead of skipping it:
   - `undecoded_records`: the decoder raised;
-  - `partial_records`: the decoder returned an object that is not `clean`. Such a record is **left out**: on the corpus side a field missing from a partial decode would read as "absent", and on our side it would go unchecked;
-  - `missing_records`.
-- **`mine()`** now reads `*.rfa` and `*.rft`. A file that fails is counted in `failed` and `failure_types`; its path is kept in memory only and never serialized. The `Oracle` gains `attempted`, `fallbacks`, the three record counters, `releases`, and `classes_without_specimens()`.
+  - `partial_records`: the decoder returned an object that is not `clean`. Such a record is **left out**: on the corpus side a field missing from a partial decode would read as "absent", and on our side it would go unchecked.
+  - A third counter, `missing_records`, was dropped in review. Its ids come from the same seq-102 table the records are read from, so it was 0 by construction and was not a measurement.
+- **`mine()`** now reads `*.rfa` and `*.rft`. A file that fails is counted in `failed` and `failure_types`; its path is kept in memory only and never serialized. The `Oracle` gains `attempted`, `fallbacks`, the two record counters, `releases`, and `classes_without_specimens()`.
   - `summary()` states `files/attempted` and every counter, names any requested class with 0 specimens, and prefixes `NOTHING MINED:` when the count is 0/N.
   - `to_json()` / `from_json()` give a cache form that holds no paths.
 - **`check_file(path, invariants, stats=…)`** checks the **written** file, decoded in its own release, rather than the builder's in-memory document. The 2025 and 2024 port layers add fields the in-memory document never had.
@@ -198,7 +198,7 @@ past the proven repair envelope, and both instruments then fail.
 `tools/self_battery.py --out <scratch>/full2/rfa --report <scratch>/full2/battery.json`,
 with a fresh corpus mine (a cache miss after the key change): **435 rows in 296 s**
 on this machine, about 65 s of which was the mine. Exit code 1. The pinned probes
-(5 / 5 pass) are not counted in the 435.
+are not counted in the 435; see the review round below for their count after review.
 
 | | 2026 | 2025 | 2024 | total |
 |---|---|---|---|---|
@@ -297,6 +297,31 @@ famspec documents that its constructors refuse bad values by name, so this is th
 intended split. The battery does not build a bare `generic_model`, because the
 part_shape and prism sources drive that constructor.
 
+## Independent review of #1088 (head `02840eb`), and what changed
+
+The review had four lenses: instrument honesty, the conformance module, tests and CI, and rules and the record. Skeptics then re-checked each blocking candidate. It found two real defects and a set of guards worth carrying.
+
+| # | finding | fix | test (R1–R5, R7 and R8's tests fail on `02840eb`; R10's are guards of behaviour that was already right) |
+|---|---|---|---|
+| R1 | **`refused` was granted to the base `PortabilityError`.** A bare one is raised for our own encoder gaps: "unsupported field kind", a drifted 2023 pin, an id that does not fit 32 bits. So a writer change the 2024/2025 adapters cannot express would have turned every case into a "known-good refusal" and stayed green. One skeptic upheld this; another called it hardening, because no case hits it today. | `REFUSALS` = the named `Missing2025` / `Missing2024` / `Missing2023` only | `test_anything_but_a_port_refusal_is_a_failure[PortabilityError]`, `test_every_named_missing_class_refuses` |
+| R2 | **A stale file passed every instrument.** `produce()` checked only `os.path.isfile(path)`. A file left by an earlier run (fixed `--out`, `--keep`) let a writer that wrote nothing pass `write`, every read-back instrument and determinism. | `produce` removes `path` first; `_run_family` removes the case directory (`a/` and the twin's `b/`) before building | `test_a_stale_file_from_an_earlier_run_is_never_graded` |
+| R3 | A hung twin hung the whole battery, because `readline()` had no deadline | a reader thread and `collect(timeout)`, `TWIN_TIMEOUT_S` = 600 s. On expiry the twin is killed, restarted for the next case, and that case's determinism FAILS. | `test_a_hung_twin_fails_determinism_instead_of_hanging` |
+| R4 | A file of ours read on a fallback rung (its own schema did not resolve its release) passed `verify` and `conformance` with only a note | both now FAIL it: our output must name its release itself | `test_a_file_of_ours_read_on_a_fallback_rung_fails_verify_and_conformance` |
+| R5 | A corpus that mined only partly (some files failed) was `ok` | state `partial`: its invariants are used, the run exits 1, and the summary says PARTIAL | `test_a_corpus_that_mines_only_partly_fails_the_run` |
+| R6 | `missing_records` was 0 by construction: the ids come from the same seq-102 table, so it was not a measurement | dropped, along with the dead `o is None` branch | the summary assertions |
+| R7 | The cache round trip compared only invariants and three counters; `to_json` returned `stats` by reference | the test compares `summary()`, `releases` and `failure_types`; `to_json` returns a snapshot | `test_the_oracle_cache_form_round_trips_and_carries_no_path` |
+| R8 | `make_family proofs` writes families with no `--output`, so it slipped past the declaration check | the check covers any subcommand that takes `--output` **or** `--no-validate`; `proofs` is listed with its reason (the panelboard / transformer / luminaire generators run the same constructors) | `test_a_non_generator_with_output_must_say_why` |
+| R9 | The rewrite dropped the old catalog's mixed multi-part family and the 600 A panelboard | both restored as pinned probes | the full run below |
+| R10 | No test made `release`, `write`, route determinism, a failing pinned probe or an unpinned base fail | tests for each; the exit rule is one function, `exit_code` | `test_the_release_and_write_instruments_can_fail`, `test_route_determinism_fails_when_the_second_run_differs[...]`, `test_the_exit_code_fails_on_every_failure_kind`, `test_an_unpinned_or_uncertified_base_is_broken_not_skipped`, `test_records_the_decoder_cannot_read_are_counted_and_fail_conformance` |
+| R11 | Record hygiene: the drop-in said "~7 s" (measured about 14 s), the shard evidence did not name its head, and the territory exception was not stated | corrected here and in BRANCH STATE | — |
+
+**Territory.** #796 says the battery is read-only on `src/`. The one exception is `src/rvt/famgen/conformance.py`, the instrument the battery reads. It is taken under steer #1084 because the instrument mined a silent zero. No engine output changes.
+
+**After the fixes**, a full run on the fixed tool with a fresh mine gives **the same 435 rows: 275 pass / 90 fail / 0 refused / 70 alias**, in 294 s, with the corpus mined 421/421.
+- No case was hiding behind the wider refusal rule: the 34 build failures are `KeyError`s, not port refusals.
+- No file of ours needed a fallback rung.
+- The **7 pinned probes give 6 pass, 1 fail**: the restored `shape_mixed_assembly` fails conformance on `ExtrusionElem.m_sideRefPlaneCurveBased`, which is class 3 below, fixed by #1085. That is the restored probe working, not a new defect.
+
 ## Quick mode (the CI shard)
 
 `tools/self_battery.py --quick --no-corpus`, measured on 2026-11-05: **7 cases** (one
@@ -322,19 +347,23 @@ determinism judged by the twin. It takes about 4 s. With the corpus it takes abo
   - `plugin/lib/src/rvt/famgen/conformance.py` — mirror, regenerated by `tools/sync_plugin.py`.
   - `tools/self_battery.py` — rewritten.
   - `tools/self_battery_aliases.json` — new: the alias pin (20 groups, 25 relations; our own case keys only).
-  - `tests/test_self_battery_796.py` — new: 35 tests, about 13 s, under the #707 leak guard.
+  - `tests/test_self_battery_796.py` — new: 49 tests, about 14 s, under the #707 leak guard.
   - `tests/ci_shard.d/796-self-battery.txt` — new.
   - this record.
 - **Gates:**
   - `pytest tests/test_self_battery_796.py tests/test_conformance.py tests/test_constraint_law_910.py tests/test_conftest_scaffolding.py tests/test_plugin_sync.py`: 106 passed, 1 skipped. The skip is the old `samples/rft` test; there is no `samples/rft` here. This was re-run on the trunk checkout. There, `make_family_module()` first had to put `tools/` back on `sys.path`, because the test file pops it after importing the battery; it now does, and the run is plain `pytest` from the repo root.
-  - Each of the 35 new tests also passes when run alone, under the guard.
+  - Each of the first cut's 35 tests also passed when run alone, under the guard (re-checked by the review in reversed order and with `PYTHONHASHSEED=0`).
+  - After the review round: `tests/test_self_battery_796.py` 49 passed; `tests/test_conformance.py tests/test_constraint_law_910.py tests/test_conftest_scaffolding.py tests/test_plugin_sync.py tests/test_bootstrap.py tests/test_coldstart.py` 94 passed, 1 skipped.
   - `tests/test_bootstrap.py tests/test_coldstart.py`: 23 passed.
   - `tools/sync_plugin.py`, then `--check`: rc 0, in sync (deny-audit clean, identity scan == allowlist).
   - `plugin/scripts/validate_plugin.py`: PASS.
   - `tools/dev/check_portable_paths.py`: ok.
-  - Full CI shard (`shard_list.py --print`, 257 files including the new drop-in, `RVT_SKIP_LARGE=1`): rc 0, **6631 passed, 156 skipped, 11 xfailed** in 1071 s. The first cut's shard run had 1 failure, the missing leak guard (fixed above).
+  - Full CI shard (`shard_list.py --print`, `RVT_SKIP_LARGE=1`):
+    - In the worktree, on the first cut plus its leak-guard fix: rc 0, 6631 passed, 156 skipped, 11 xfailed in 1071 s. The first cut's very first shard run had 1 failure, the missing leak guard (fixed above).
+    - The tech-lead sandboxed CI on head `02840eb`: rc 0, **6658 passed, 152 skipped, 11 xfailed** in 1072 s.
+    - The review-round head is re-run by the same sandboxed CI before merge.
   - `tools/self_battery.py --quick`: 7 / 7.
-  - Full run: 435 rows, 275 pass / 90 fail / 0 refused / 70 alias, with every failure class listed above.
+  - Full run: 435 rows, 275 pass / 90 fail / 0 refused / 70 alias, with every failure class listed above. Re-run after the review round: identical, and pinned 6/7 (the one fail is class 3, #1085).
 - **Not done here:**
   - Engine findings are deliberately not fixed. #796 makes the battery read-only on `src/`, apart from the instrument.
   - The follow-ups above are filed or commented:

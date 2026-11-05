@@ -100,7 +100,7 @@ class Oracle:
 
     #: the counters :meth:`to_json` carries (never a path)
     _COUNTERS = ("files", "attempted", "failed", "fallbacks", "undecoded_records",
-                 "partial_records", "missing_records")
+                 "partial_records")
 
     def __init__(self) -> None:
         # class -> field -> shape -> count
@@ -112,7 +112,6 @@ class Oracle:
         self.fallbacks = 0                       # decoded via a fallback rung
         self.undecoded_records = 0               # records that did not decode
         self.partial_records = 0                 # decoded only partly (not ``clean``)
-        self.missing_records = 0                 # class ids with no seq-102 record
         #: the classes :func:`mine` was asked for (``classes_without_specimens``)
         self.requested: Tuple[str, ...] = ()
         self.failure_types: Dict[str, int] = collections.Counter()
@@ -136,7 +135,7 @@ class Oracle:
                                        for k, v in sorted(self.failure_types.items()))
         line += (f"; {self.fallbacks} via a fallback rung; "
                  f"{self.undecoded_records} undecoded, {self.partial_records} partly "
-                 f"decoded (both left out), {self.missing_records} missing records); "
+                 f"decoded records (both left out)); "
                  f"{len(self.specimens)} classes seen, "
                  f"{len(inv)} with invariants, {n_inv} invariants")
         empty = self.classes_without_specimens()
@@ -148,7 +147,9 @@ class Oracle:
 
     def to_json(self) -> Dict[str, Any]:
         """Statistics + counters, never a path (the cache form)."""
-        return {"stats": self.stats, "specimens": dict(self.specimens),
+        return {"stats": {c: {f: dict(sh) for f, sh in fs.items()}
+                          for c, fs in self.stats.items()},     # a snapshot, not a view
+                "specimens": dict(self.specimens),
                 "counters": {k: getattr(self, k) for k in self._COUNTERS},
                 "failure_types": dict(self.failure_types),
                 "releases": dict(self.releases), "requested": list(self.requested)}
@@ -220,13 +221,15 @@ def iter_objects(path: str, classes: Iterable[str] = DEFAULT_CLASSES
     raised), ``partial_records`` (it returned an object that is not ``clean``
     -- errors, or bytes left unconsumed: such a record is LEFT OUT, because a
     field its partial decode lacks would read as "absent" on the corpus side
-    and go unchecked on ours) and ``missing_records``.  A file that cannot be
-    opened at all raises -- the caller counts it."""
+    and go unchecked on ours).  A file that cannot be opened at all raises --
+    the caller counts it.  (Element ids come from the same seq-102 table the
+    records are read from, so an id without a record cannot occur and is not
+    counted.)"""
     from ..families import FamilyIndex
     from ..global_framing import enter_own_release
     from ..objects import ObjectDecoder
 
-    counters = {"undecoded_records": 0, "partial_records": 0, "missing_records": 0}
+    counters = {"undecoded_records": 0, "partial_records": 0}
     out: List[Tuple[int, str, Dict[str, Any]]] = []
     with ExitStack() as st:
         note = enter_own_release(st, path)
@@ -235,16 +238,11 @@ def iter_objects(path: str, classes: Iterable[str] = DEFAULT_CLASSES
         recs = idx.unit_records(0).get(102, {})
         for cls in dict.fromkeys(classes):          # stable order, no repeats
             for eid in idx.ids_of_class(0, cls):
-                r = recs.get(eid)
-                if r is None:
-                    counters["missing_records"] += 1
-                    continue
+                r = recs[eid]                   # ids_of_class enumerates these keys
                 try:
                     o = dec.decode_record(r.class_id, r.payload)
                 except Exception:                                 # noqa: BLE001
                     counters["undecoded_records"] += 1
-                    continue
-                if o is None:
                     continue
                 if not o.clean:
                     counters["partial_records"] += 1
@@ -291,7 +289,6 @@ def mine(directory: str, *, classes: Iterable[str] = DEFAULT_CLASSES,
         oracle.fallbacks += note is not None
         oracle.undecoded_records += counters["undecoded_records"]
         oracle.partial_records += counters["partial_records"]
-        oracle.missing_records += counters["missing_records"]
         try:
             year = V.detect_release(path)
         except Exception:                                         # noqa: BLE001
