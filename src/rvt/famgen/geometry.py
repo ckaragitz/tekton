@@ -1449,7 +1449,7 @@ def new_extrusion(elem_id: int, ctx: FamilyDocContext, *, sketch_id: int,
     obj["m_famElemVisibility"] = {"m_flags": int(ctx.fam_elem_visibility)}
     obj["m_cutting"] = False
     obj["m_alwaysRefPlaneNorm"] = bool(always_ref_plane_norm)
-    obj["m_sideRefPlaneCurveBased"] = False
+    obj["m_sideRefPlaneCurveBased"] = True     # 2,161 / 2,161 born extrusions (#1085)
     assign_pids(obj)
     if rep == REP_SOLID:
         # the element's own Start / End are ordered by elevation (above), so its
@@ -2497,7 +2497,7 @@ def new_cylinder_extrusion(elem_id: int, ctx: FamilyDocContext, *, sketch_id: in
     obj["m_famElemVisibility"] = {"m_flags": int(ctx.fam_elem_visibility)}
     obj["m_cutting"] = False
     obj["m_alwaysRefPlaneNorm"] = bool(always_ref_plane_norm)
-    obj["m_sideRefPlaneCurveBased"] = False
+    obj["m_sideRefPlaneCurveBased"] = True     # as every born extrusion (#1085)
     assign_pids(obj)
     if rep == REP_SOLID:
         solid = solid_cylinder_brep(C, start, end, element_id=elem_id,
